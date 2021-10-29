@@ -9,20 +9,33 @@ from pydantic import BaseModel, Field
 
 
 class Recipe(BaseModel):
+    """
+    Класс рецепта. Состоит из полей с индексом, именем и флагом использования.
+    """
     id: Optional[ObjectId] = Field(default=None, alias='_id')
     name: str
     is_used: bool = False
 
     def take(self):
+        """
+        :return: Использованный рецепт. Меняет значение поля is_used на True
+        :rtype: Recipe
+        """
         if self.is_used:
             raise RuntimeError(f'recipe {self} already used')
         self.is_used = True
         return self
 
-    def get_index(self):
+    def get_index(self) -> dict:
+        """
+        :return: Словарь с атрибутами класса без индексируемого поля "id"
+        """
         return self.dict(include={'id'}, by_alias=True)
 
-    def get_data_without_index(self):
+    def get_data_without_index(self) -> dict:
+        """
+        :return: Словарь вида {"id": recipe.id}
+        """
         return self.dict(exclude={'id'}, by_alias=True)
 
     class Config:
@@ -30,14 +43,20 @@ class Recipe(BaseModel):
 
 
 class User:
+    """
+    Класс пользователя с рецептами.
+    Общается с базой данных, совершает операции над индексами.
+    """
     @property
-    def name(self):
+    def name(self) -> str:
+        """Имя коллекции с пользователем."""
         return self.__collection.name
 
     def __init__(self, collection: Collection):
+        """:collection: коллекция в базе данных"""
         self.__collection = collection
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return not bool(self.list_recipes())
 
     def list_recipes(self, filter: dict = {}) -> list[Recipe]:
@@ -54,10 +73,17 @@ class User:
         return [Recipe(**document) for document in cursor]
 
     def add_recipe(self, recipe_name: str):
+        """Добавляет рецепт в коллекцию пользователя"""
         new_recipe = Recipe(name=recipe_name)
         self.__collection.insert_one(new_recipe.get_data_without_index())
 
     def take_recipe(self, recipe: Recipe) -> Recipe:
+        """
+        Берет рецепт из коллекции пользователя.
+        Меняет значение поля рецепта в бд и в самом рецепте на is_used=True.
+
+        :return: исходный recipe, но с полем is_used=True
+        """
         recipe_index_filter = recipe.get_index()
         used_recipe = recipe.take()
         as_used_update = {'$set': used_recipe.get_data_without_index()}
@@ -66,13 +92,27 @@ class User:
         return used_recipe
 
     def remove_recipe(self, recipe: Recipe):
+        """Удаляет рецепт из коллекции"""
         self.__collection.delete_one(filter=recipe.dict(by_alias=True))
 
     def unuse_all_recipes(self):
+        """
+        Ставит всем рецептам в коллекции is_used=False
+        """
         as_unused_update = {'$set': {'is_used': False}}
         self.__collection.update_many(filter={}, update=as_unused_update)
 
-    def random_recipe(self) -> Recipe:
+    def take_random_recipe(self) -> Recipe:
+        """
+        Берет случайный рецепт среди неиспользованных рецептов пользователя.
+
+        Меняет значение поля рецепта в бд и в самом рецепте на is_used=True.
+        Если у пользователя нет рецептов, то выбрасывает ошибку `IndexError`.
+        Если у пользователя нет неиспользованных рецептов, метод cтавит
+        всем рецептам в коллекции is_used=False
+
+        :return: случайный рецепт с полем is_used=True
+        """
         if self.is_empty():
             raise IndexError(f'User {self.name} has no recips')
         unused_recipes = self.list_recipes(filter={'is_used': False})
@@ -84,6 +124,13 @@ class User:
 
 
 class RecipeDB:
+    """
+    База данных с рецептами.
+    Сама база - MongoDB.
+    При обращении к методам класса происходит создание
+    класса User, посредством которого записываются,
+    читаются и изменяются данные в базе.
+    """
     def __init__(self):
         db_user = os.environ['MONGO_USER']
         password = os.environ['MONGO_PASSWORD']
@@ -110,9 +157,9 @@ class RecipeDB:
         user = self.__get_user(user_id)
         user.remove_recipe(recipe)
 
-    def random_recipe(self, user_id: int) -> Recipe:
+    def take_random_recipe(self, user_id: int) -> Recipe:
         user = self.__get_user(user_id)
-        return user.random_recipe()
+        return user.take_random_recipe()
 
 
 if __name__ == '__main__':
@@ -128,10 +175,10 @@ if __name__ == '__main__':
     assert recipes[0].get_data_without_index() == test_recipe
 
     test_recipe['is_used'] = True
-    random_recipe = db.random_recipe(test_user_id)
+    random_recipe = db.take_random_recipe(test_user_id)
     assert random_recipe.get_data_without_index() == test_recipe
 
-    random_recipe = db.random_recipe(test_user_id)
+    random_recipe = db.take_random_recipe(test_user_id)
     assert random_recipe.get_data_without_index() == test_recipe
 
     recipes = db.list_recipes(test_user_id)
