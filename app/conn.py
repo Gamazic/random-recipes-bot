@@ -4,15 +4,15 @@ from typing import Optional
 from bson.objectid import ObjectId
 
 from pymongo import MongoClient
+import pymongo
 from pymongo.collection import Collection
 from pydantic import BaseModel, Field
 
 
 class Recipe(BaseModel):
     """
-    Класс рецепта. Состоит из полей с индексом, именем и флагом использования.
+    Класс рецепта. Состоит из полей с индексом (name) и флагом использования.
     """
-    id: Optional[ObjectId] = Field(default=None, alias='_id')
     name: str
     is_used: bool = False
 
@@ -25,21 +25,6 @@ class Recipe(BaseModel):
             raise RuntimeError(f'recipe {self} already used')
         self.is_used = True
         return self
-
-    def get_index(self) -> dict:
-        """
-        :return: Словарь с атрибутами класса без индексируемого поля "id"
-        """
-        return self.dict(include={'id'}, by_alias=True)
-
-    def get_data_without_index(self) -> dict:
-        """
-        :return: Словарь вида {"id": recipe.id}
-        """
-        return self.dict(exclude={'id'}, by_alias=True)
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class User:
@@ -55,9 +40,14 @@ class User:
     def __init__(self, collection: Collection):
         """:collection: коллекция в базе данных"""
         self.__collection = collection
+        if self.is_empty():
+            self.__create_recipe_name_index()
 
     def is_empty(self) -> bool:
         return not bool(self.list_recipes())
+
+    def __create_recipe_name_index(self):
+        self.__collection.create_index([('name', pymongo.TEXT)])
 
     def list_recipes(self, filter: dict = {}) -> list[Recipe]:
         """
@@ -66,7 +56,7 @@ class User:
         Example:
         ```
         user.list_recipes({'is_used': True})
-        >>> [Recipe(id=..., name=..., is_used=True)]
+        >>> [Recipe(name=..., is_used=True)]
         ```
         """
         cursor = self.__collection.find(filter)
@@ -75,7 +65,7 @@ class User:
     def add_recipe(self, recipe_name: str):
         """Добавляет рецепт в коллекцию пользователя"""
         new_recipe = Recipe(name=recipe_name)
-        self.__collection.insert_one(new_recipe.get_data_without_index())
+        self.__collection.insert_one(new_recipe.dict())
 
     def take_recipe(self, recipe: Recipe) -> Recipe:
         """
@@ -84,16 +74,16 @@ class User:
 
         :return: исходный recipe, но с полем is_used=True
         """
-        recipe_index_filter = recipe.get_index()
+        recipe_name_filter = recipe.dict(include={'name'})
         used_recipe = recipe.take()
-        as_used_update = {'$set': used_recipe.get_data_without_index()}
-        self.__collection.update_one(filter=recipe_index_filter,
+        as_used_update = {'$set': used_recipe.dict(include={'is_used'})}
+        self.__collection.update_one(filter=recipe_name_filter,
                                      update=as_used_update)
         return used_recipe
 
     def remove_recipe(self, recipe: Recipe):
         """Удаляет рецепт из коллекции"""
-        self.__collection.delete_one(filter=recipe.dict(by_alias=True))
+        self.__collection.delete_one(filter=recipe.dict(include={'name'}))
 
     def unuse_all_recipes(self):
         """
@@ -143,6 +133,7 @@ class RecipeDB:
         self.db = self.client[db_name]
 
     def __get_user(self, user_id: int) -> User:
+        user_id = str(user_id)
         return User(self.db[user_id])
 
     def add_recipe(self, user_id: int, recipe_name: str):
@@ -172,14 +163,14 @@ if __name__ == '__main__':
     test_recipe = {'name': 'kukuha', 'is_used': False}
     db.add_recipe(test_user_id, test_recipe['name'])
     recipes = db.list_recipes(test_user_id)
-    assert recipes[0].get_data_without_index() == test_recipe
+    assert recipes[0].dict() == test_recipe
 
     test_recipe['is_used'] = True
     random_recipe = db.take_random_recipe(test_user_id)
-    assert random_recipe.get_data_without_index() == test_recipe
+    assert random_recipe.dict() == test_recipe
 
     random_recipe = db.take_random_recipe(test_user_id)
-    assert random_recipe.get_data_without_index() == test_recipe
+    assert random_recipe.dict() == test_recipe
 
     recipes = db.list_recipes(test_user_id)
     for r in recipes:
