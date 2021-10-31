@@ -13,6 +13,7 @@
 * poetry
 
 ## BETA 1: single thread app
+
 * Welcome message
 * хостинг
 * Возможность делиться рецептом
@@ -20,5 +21,6 @@
     * Списком
 
 ## REALISE 1:
+
 * async mongo
 * async fastapi webhook
