@@ -19,6 +19,6 @@
     * Случайным
     * Списком
 
-## RELISE 1:
+## REALISE 1:
 * async mongo
 * async fastapi webhook
