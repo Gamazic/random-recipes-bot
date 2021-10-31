@@ -1,6 +1,6 @@
 # random-recipes-bot
 
-## ALPHA 1
+## ALPHA 1: working mvp app
 
 * Реализовать функционал *Назад* в layout-е деталей рецепта.
 * Придумать что то кроме try except в функции случайного рецепта.
