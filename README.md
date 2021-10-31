@@ -12,7 +12,7 @@
 * Раскидать все по модулям, сделать красиво
 * poetry
 
-## BETA
+## BETA 1: single thread app
 * Welcome message
 * хостинг
 * Возможность делиться рецептом
