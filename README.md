@@ -18,3 +18,7 @@
 * Возможность делиться рецептом
     * Случайным
     * Списком
+
+## RELISE 1:
+* async mongo
+* async fastapi webhook
