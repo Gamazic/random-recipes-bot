@@ -100,7 +100,7 @@ class User:
         as_unused_update = {'$set': {'is_used': False}}
         self.__collection.update_many(filter={}, update=as_unused_update)
 
-    def take_random_recipe(self) -> RecipeWithId:
+    def take_random_recipe(self) -> Optional[RecipeWithId]:
         """
         Берет случайный рецепт среди неиспользованных рецептов пользователя.
 
@@ -112,7 +112,8 @@ class User:
         :return: случайный рецепт с полем is_used=True
         """
         if self.has_no_recipes():
-            raise RuntimeError(f'User {self.name} has no recips')
+            # raise RuntimeError(f'User {self.name} has no recips')
+            return None
         unused_recipes = self.list_recipes(filter={'is_used': False})
         if not unused_recipes:
             self.unuse_all_recipes()
@@ -162,7 +163,7 @@ class RecipeDB:
         recipe = user.find_recipe_by_id(recipe_id)
         user.remove_recipe(recipe)
 
-    def take_random_recipe(self, user_id: int) -> RecipeWithId:
+    def take_random_recipe(self, user_id: int) -> Optional[RecipeWithId]:
         user = self.__get_user(user_id)
         return user.take_random_recipe()
 

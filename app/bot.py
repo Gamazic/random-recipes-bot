@@ -136,13 +136,12 @@ def process_adding_recipe(message):
 
 @bot.message_handler(regexp='[Сс]луч')
 def take_random_recipe(message):
-    # Так нельзя делать! Нужно одно действие в блоке try!
-    try:
-        recipe = db.take_random_recipe(message.chat.id)
+    recipe = db.take_random_recipe(message.chat.id)
+    if recipe is None:
+        bot.reply_to(message, text='Список рецептов пуст. Чтобы добавить рецепт нажмите кнопку "Добавить"')
+    else:
         recipe_details_layout = create_recipe_details_layout(recipe)
         bot.reply_to(message, **recipe_details_layout)
-    except RuntimeError:
-        bot.reply_to(message, text='Список рецептов пуст. Чтобы добавить рецепт нажмите кнопку "Добавить"')
 
 
 @bot.callback_query_handler(func=lambda call: validate_recipe_details_callback(call.data))
