@@ -21,10 +21,10 @@ def start(message):
 def show_recipes_list(message):
     recipes = db.list_recipes(message.chat.id)
     if not recipes:
-        bot.reply_to(message, text='Список рецептов пуст.')
+        bot.send_message(message.chat.id, text='Список рецептов пуст.')
     else:
         layout = recipes_list_layout(recipes)
-        bot.reply_to(message, **layout)
+        bot.send_message(message.chat.id, **layout)
 
 
 @bot.callback_query_handler(func=lambda call: CallbackValidator.action(call.data))
@@ -74,10 +74,10 @@ def process_adding_recipe(message):
 def take_random_recipe(message):
     recipe = db.take_random_recipe(message.chat.id)
     if recipe is None:
-        bot.reply_to(message, text='Список рецептов пуст. Чтобы добавить рецепт нажмите кнопку "Добавить"')
+        bot.send_message(message.chat.id, text='Список рецептов пуст. Чтобы добавить рецепт нажмите кнопку "Добавить"')
     else:
         recipe_details_layout = create_recipe_details_layout(recipe)
-        bot.reply_to(message, **recipe_details_layout)
+        bot.send_message(message.chat.id, **recipe_details_layout)
 
 
 @bot.callback_query_handler(func=lambda call: CallbackValidator.recipe_details(call.data))
