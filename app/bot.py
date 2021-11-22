@@ -64,24 +64,12 @@ def recipes_list_layout(recipes_list: list[RecipeWithId]) -> dict:
         display_is_used_recipe = '\U0001F373' if current_recipe.is_used else ''
         display_recipe_name = current_recipe.name + display_is_used_recipe
         recipe_keyboard = types.InlineKeyboardButton(display_recipe_name,
-                                                        callback_data=recipe_details_callback.json())
+                                                     callback_data=recipe_details_callback.json())
         inline_recipes_markup.add(recipe_keyboard)
-
-    # used_recipes_callback = ActionCallbackData(action='show_used_recipes')
-    # used_recipes_button = types.InlineKeyboardButton('Неиспользованные',
-    #                                                  callback_data=used_recipes_callback.json())
-
-    # unused_recipes_callback = ActionCallbackData(action='show_unused_recipes')
-    # unused_recipes_button = types.InlineKeyboardButton('Использованные',
-    #                                                    callback_data=unused_recipes_callback.json())
-
-    # inline_recipes_markup.add(used_recipes_button, unused_recipes_button)
     return {
         'text': 'Список',
         'reply_markup': inline_recipes_markup
     }
-
-
 
 
 @bot.message_handler(regexp='[Дд]обав')
@@ -106,7 +94,7 @@ def take_random_recipe(message):
         bot.reply_to(message, **recipe_details_layout)
 
 
-@bot.callback_query_handler(func=lambda call: validate_recipe_details_callback(call.data))
+@bot.callback_query_handler(func=lambda call: CallbackValidator.recipe_details(call.data))
 def show_recipe_details(call):
     recipe_callback_data = RecipeDetailsCallbackData.parse_raw(call.data)
     recipe = db.find_recipe_by_id(call.from_user.id,
@@ -143,7 +131,7 @@ def create_recipe_details_layout(recipe: RecipeWithId) -> dict:
     }
 
 
-@bot.callback_query_handler(func=lambda call: validate_delete_recipe_callback(call.data))
+@bot.callback_query_handler(func=lambda call: CallbackValidator.delete_recipe(call.data))
 def delete_recipe(call):
     recipe_callback_data = RecipeActionCallbackData.parse_raw(call.data)
     recipe = db.find_recipe_by_id(call.from_user.id,
