@@ -1,77 +1,15 @@
 import os
-from bson import json_util
-from bson.objectid import ObjectId
 
 import telebot
 from telebot import types
-from pydantic import BaseModel
 
 from conn import RecipeDB, RecipeWithId
+from callback_shema import (RecipeActionCallbackData, RecipeDetailsCallbackData,
+                            ActionCallbackData, CallbackValidator)
 
 
 bot = telebot.TeleBot(os.environ['TG_TOKEN'])
 db = RecipeDB()
-
-
-class ActionCallbackData(BaseModel):
-    action: str
-
-
-class RecipeDetailsCallbackData(BaseModel):
-    id: ObjectId
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_dumps = json_util.dumps
-        json_loads = json_util.loads
-
-
-class RecipeActionCallbackData(BaseModel):
-    action: str
-    id: ObjectId
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_dumps = json_util.dumps
-        json_loads = json_util.loads
-
-
-def parse_callback_data(callback_data):
-    parsed_data = json_util.loads(callback_data)
-    if 'action' in parsed_data:
-        callback_data = ActionCallbackData(**parsed_data)
-    elif 'id' in parsed_data:
-        callback_data = RecipeDetailsCallbackData(**parsed_data)
-    return callback_data
-
-
-def validate_recipe_details_callback(callback_data):
-    parsed_data = json_util.loads(callback_data)
-    return ('id' in parsed_data) and ('action' not in parsed_data)
-
-
-def validate_recipe_action_callback(callback_data):
-    parsed_data = json_util.loads(callback_data)
-    return ('id' in parsed_data) and ('action' in parsed_data)
-
-
-def validate_change_recipe_callback(callback_data):
-    is_recipe_action = validate_recipe_action_callback(callback_data)
-    parsed_data = json_util.loads(callback_data)
-    is_change_action = parsed_data['action'] == 'change'
-    return is_recipe_action and is_change_action
-
-
-def validate_delete_recipe_callback(callback_data):
-    is_recipe_action = validate_recipe_action_callback(callback_data)
-    parsed_data = json_util.loads(callback_data)
-    is_change_action = parsed_data['action'] == 'delete'
-    return is_recipe_action and is_change_action
-
-
-def validate_action_callback(callback_data):
-    parsed_data = json_util.loads(callback_data)
-    return ('id' not in parsed_data) and ('action' in parsed_data)
 
 
 user_keyboard = [
@@ -94,32 +32,56 @@ def start(message):
 
 
 @bot.message_handler(regexp='[Сс]писок')
-def show_recipes(message):
+def show_recipes_list(message):
     recipes = db.list_recipes(message.chat.id)
     if not recipes:
         bot.reply_to(message, text='Список рецептов пуст.')
     else:
-        inline_recipes_markup = types.InlineKeyboardMarkup()
-        for current_recipe in recipes:
-            recipe_details_callback = RecipeDetailsCallbackData(id=current_recipe.id)
-            display_is_used_recipe = '\U0001F373' if current_recipe.is_used else ''
-            display_recipe_name = current_recipe.name + display_is_used_recipe
-            recipe_keyboard = types.InlineKeyboardButton(display_recipe_name,
-                                                         callback_data=recipe_details_callback.json())
-            inline_recipes_markup.add(recipe_keyboard)
+        layout = recipes_list_layout(recipes)
+        bot.reply_to(message, **layout)
 
-        # used_recipes_callback = ActionCallbackData(action='show_used_recipes')
-        # used_recipes_button = types.InlineKeyboardButton('Неиспользованные',
-        #                                                  callback_data=used_recipes_callback.json())
 
-        # unused_recipes_callback = ActionCallbackData(action='show_unused_recipes')
-        # unused_recipes_button = types.InlineKeyboardButton('Использованные',
-        #                                                    callback_data=unused_recipes_callback.json())
+@bot.callback_query_handler(func=lambda call: CallbackValidator.action(call.data))
+def show_recipes_list_from_details(call):
+    recipes = db.list_recipes(call.from_user.id)
+    if not recipes:
+        bot.edit_message_text(chat_id=call.from_user.id,
+                              message_id=call.message.id,
+                              inline_message_id=call.inline_message_id,
+                              text='Список рецептов пуст.')
+    else:
+        layout = recipes_list_layout(recipes)
+        bot.edit_message_text(chat_id=call.from_user.id,
+                              message_id=call.message.id,
+                              inline_message_id=call.inline_message_id,
+                              **layout)
 
-        # inline_recipes_markup.add(used_recipes_button, unused_recipes_button)
 
-        bot.reply_to(message, text='Список:',
-                     reply_markup=inline_recipes_markup)
+def recipes_list_layout(recipes_list: list[RecipeWithId]) -> dict:
+    inline_recipes_markup = types.InlineKeyboardMarkup()
+    for current_recipe in recipes_list:
+        recipe_details_callback = RecipeDetailsCallbackData(id=current_recipe.id)
+        display_is_used_recipe = '\U0001F373' if current_recipe.is_used else ''
+        display_recipe_name = current_recipe.name + display_is_used_recipe
+        recipe_keyboard = types.InlineKeyboardButton(display_recipe_name,
+                                                        callback_data=recipe_details_callback.json())
+        inline_recipes_markup.add(recipe_keyboard)
+
+    # used_recipes_callback = ActionCallbackData(action='show_used_recipes')
+    # used_recipes_button = types.InlineKeyboardButton('Неиспользованные',
+    #                                                  callback_data=used_recipes_callback.json())
+
+    # unused_recipes_callback = ActionCallbackData(action='show_unused_recipes')
+    # unused_recipes_button = types.InlineKeyboardButton('Использованные',
+    #                                                    callback_data=unused_recipes_callback.json())
+
+    # inline_recipes_markup.add(used_recipes_button, unused_recipes_button)
+    return {
+        'text': 'Список',
+        'reply_markup': inline_recipes_markup
+    }
+
+
 
 
 @bot.message_handler(regexp='[Дд]обав')
@@ -169,7 +131,11 @@ def create_recipe_details_layout(recipe: RecipeWithId) -> dict:
     delete_button = types.InlineKeyboardButton('Удалить',
                                                callback_data=delete_callback.json())
 
-    inline_recipe_actions_markup.add(delete_button)
+    list_recipes_callback = ActionCallbackData(action='show_recipes_list')
+    list_recipes_button = types.InlineKeyboardButton('К списку рецептов',
+                                                     callback_data=list_recipes_callback.json())
+
+    inline_recipe_actions_markup.add(list_recipes_button, delete_button)
     return {
         'text': answer,
         'parse_mode': 'Markdown',

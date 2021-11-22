@@ -2,9 +2,10 @@
 
 ## ALPHA 1: working mvp app
 
-* Реализовать функционал *Назад* в layout-е деталей рецепта.
 * Все команды через `/<command>`, а не через сообщение.
 * всплывающие подсказки с командами
+* Подумать, нужны ли условия на валидации. Может быть лучше `try/except`
+* validate callback function (Выладиирует callback по классу (CallbackData) и callback.data)
 
 ## ALPHA 2: module refactoring
 
