@@ -12,26 +12,12 @@ bot = telebot.TeleBot(os.environ['TG_TOKEN'])
 db = RecipeDB()
 
 
-user_keyboard = [
-    ['Выбрать случайный'],
-    ['Список'],
-    ['Добавить']
-]
-
-
 @bot.message_handler(commands=['start'])
 def start(message):
-    keyboard_markup = types.ReplyKeyboardMarkup()
-    for row in user_keyboard:
-        row_buttons = []
-        for text_line in row:
-            row_buttons.append(types.KeyboardButton(text_line))
-        keyboard_markup.row(*row_buttons)
-    bot.send_message(message.chat.id, 'Выберите действие.',
-                     reply_markup=keyboard_markup)
+    bot.send_message(message.chat.id, 'Привет! Инструкция:')
 
 
-@bot.message_handler(regexp='[Сс]писок')
+@bot.message_handler(commands=['list'])
 def show_recipes_list(message):
     recipes = db.list_recipes(message.chat.id)
     if not recipes:
@@ -72,7 +58,7 @@ def recipes_list_layout(recipes_list: list[RecipeWithId]) -> dict:
     }
 
 
-@bot.message_handler(regexp='[Дд]обав')
+@bot.message_handler(commands=['add'])
 def add_recipe(message):
     msg = bot.reply_to(message, 'Напишите название рецепта')
     bot.register_next_step_handler(msg, process_adding_recipe)
@@ -84,7 +70,7 @@ def process_adding_recipe(message):
                      parse_mode='Markdown')
 
 
-@bot.message_handler(regexp='[Сс]луч')
+@bot.message_handler(commands=['random'])
 def take_random_recipe(message):
     recipe = db.take_random_recipe(message.chat.id)
     if recipe is None:
