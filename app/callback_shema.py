@@ -26,7 +26,6 @@ class RecipeActionCallbackData(BaseModel):
         json_loads = json_util.loads
 
 
-
 class CallbackValidator:
     @staticmethod
     def parse_callback_data(callback_data):
