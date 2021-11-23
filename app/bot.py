@@ -4,7 +4,7 @@ import telebot
 from telebot import types
 
 from conn import RecipeDB, RecipeWithId
-from callback_shema import (RecipeActionCallbackData, RecipeDetailsCallbackData,
+from callback_shema import (RecipeActionCallbackData,
                             ActionCallbackData, CallbackValidator)
 
 
@@ -27,7 +27,7 @@ def show_recipes_list(message):
         bot.send_message(message.chat.id, **layout)
 
 
-@bot.callback_query_handler(func=lambda call: CallbackValidator.action(call.data))
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_action_type(call.data, 'show_recipes_list'))
 def show_recipes_list_from_details(call):
     recipes = db.list_recipes(call.from_user.id)
     if not recipes:
@@ -46,7 +46,7 @@ def show_recipes_list_from_details(call):
 def recipes_list_layout(recipes_list: list[RecipeWithId]) -> dict:
     inline_recipes_markup = types.InlineKeyboardMarkup()
     for current_recipe in recipes_list:
-        recipe_details_callback = RecipeDetailsCallbackData(id=current_recipe.id)
+        recipe_details_callback = RecipeActionCallbackData(id=current_recipe.id, action='detail')
         display_is_used_recipe = '\U0001F373' if current_recipe.is_used else ''
         display_recipe_name = current_recipe.name + display_is_used_recipe
         recipe_keyboard = types.InlineKeyboardButton(display_recipe_name,
@@ -80,9 +80,9 @@ def take_random_recipe(message):
         bot.send_message(message.chat.id, **recipe_details_layout)
 
 
-@bot.callback_query_handler(func=lambda call: CallbackValidator.recipe_details(call.data))
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_recipe_action_type(call.data, 'detail'))
 def show_recipe_details(call):
-    recipe_callback_data = RecipeDetailsCallbackData.parse_raw(call.data)
+    recipe_callback_data = RecipeActionCallbackData.parse_raw(call.data)
     recipe = db.find_recipe_by_id(call.from_user.id,
                                   recipe_callback_data.id)
 
@@ -117,7 +117,7 @@ def create_recipe_details_layout(recipe: RecipeWithId) -> dict:
     }
 
 
-@bot.callback_query_handler(func=lambda call: CallbackValidator.delete_recipe(call.data))
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_recipe_action_type(call.data, 'delete'))
 def delete_recipe(call):
     recipe_callback_data = RecipeActionCallbackData.parse_raw(call.data)
     recipe = db.find_recipe_by_id(call.from_user.id,

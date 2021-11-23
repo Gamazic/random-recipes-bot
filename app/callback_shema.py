@@ -1,66 +1,48 @@
 from bson import json_util
 from bson.objectid import ObjectId
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 
 class ActionCallbackData(BaseModel):
     action: str
 
 
-class RecipeDetailsCallbackData(BaseModel):
-    id: ObjectId
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_dumps = json_util.dumps
-        json_loads = json_util.loads
-
-
 class RecipeActionCallbackData(BaseModel):
-    action: str
     id: ObjectId
+    action: str
 
     class Config:
         arbitrary_types_allowed = True
         json_dumps = json_util.dumps
         json_loads = json_util.loads
+
+
+def is_valid_schema(raw_data: str, schema: BaseModel) -> bool:
+    is_valid = True
+    try:
+        schema.parse_raw(raw_data)
+    except ValidationError:
+        is_valid = False
+    return is_valid
 
 
 class CallbackValidator:
     @staticmethod
-    def parse_callback_data(callback_data):
-        parsed_data = json_util.loads(callback_data)
-        if 'action' in parsed_data:
-            callback_data = ActionCallbackData(**parsed_data)
-        elif 'id' in parsed_data:
-            callback_data = RecipeDetailsCallbackData(**parsed_data)
-        return callback_data
+    def validate_recipe_action_type(callback_data: str, action_type: str):
+        is_recipe_action = is_valid_schema(callback_data, RecipeActionCallbackData)
+        if is_recipe_action:
+            parsed_data = RecipeActionCallbackData.parse_raw(callback_data)
+            is_correct_action = (parsed_data.action == action_type)
+            return is_correct_action
+        else:
+            return False
 
     @staticmethod
-    def recipe_details(callback_data):
-        parsed_data = json_util.loads(callback_data)
-        return ('id' in parsed_data) and ('action' not in parsed_data)
-
-    @staticmethod
-    def recipe_action(callback_data):
-        parsed_data = json_util.loads(callback_data)
-        return ('id' in parsed_data) and ('action' in parsed_data)
-
-    @staticmethod
-    def change_recipe(callback_data):
-        is_recipe_action = CallbackValidator.recipe_action(callback_data)
-        parsed_data = json_util.loads(callback_data)
-        is_change_action = parsed_data['action'] == 'change'
-        return is_recipe_action and is_change_action
-
-    @staticmethod
-    def delete_recipe(callback_data):
-        is_recipe_action = CallbackValidator.recipe_action(callback_data)
-        parsed_data = json_util.loads(callback_data)
-        is_change_action = parsed_data['action'] == 'delete'
-        return is_recipe_action and is_change_action
-
-    @staticmethod
-    def action(callback_data):
-        parsed_data = json_util.loads(callback_data)
-        return ('id' not in parsed_data) and ('action' in parsed_data)
+    def validate_action_type(callback_data: str, action_type: str):
+        is_action = is_valid_schema(callback_data, ActionCallbackData)
+        if is_action:
+            parsed_data = ActionCallbackData.parse_raw(callback_data)
+            is_correct_action = (parsed_data.action == action_type)
+            return is_correct_action
+        else:
+            return False
