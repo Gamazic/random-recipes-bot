@@ -6,7 +6,7 @@ from bson import json_util
 
 from pymongo import MongoClient
 import pymongo
-from pymongo.collection import Collection
+from pymongo.collection import Collection, ReturnDocument
 from pydantic import BaseModel, Field
 
 
@@ -76,13 +76,11 @@ class User:
         :return: исходный recipe, но с полем is_used=True
         """
         recipe_id_filter = recipe.dict(include={'id'}, by_alias=True)
-        if recipe.is_used:
-            raise RuntimeError(f'recipe {recipe} already used')
-        else:
-            recipe.is_used = True
-        as_used_update = {'$set': recipe.dict(include={'is_used'})}
-        self.__collection.update_one(filter=recipe_id_filter,
-                                     update=as_used_update)
+        as_used_update = {'$set': {'is_used': True}}
+        recipe_dict_data = self.__collection.find_one_and_update(filter=recipe_id_filter,
+                                                                 update=as_used_update,
+                                                                 return_document=ReturnDocument.AFTER)
+        recipe = RecipeWithId(**recipe_dict_data)
         return recipe
 
     def remove_recipe(self, recipe: RecipeWithId):
@@ -99,6 +97,15 @@ class User:
         """
         as_unused_update = {'$set': {'is_used': False}}
         self.__collection.update_many(filter={}, update=as_unused_update)
+
+    def unuse_recipe(self, recipe: RecipeWithId) -> RecipeWithId:
+        recipe_id_filter = recipe.dict(include={'id'}, by_alias=True)
+        as_unused_update = {'$set': {'is_used': False}}
+        recipe_dict_data = self.__collection.find_one_and_update(filter=recipe_id_filter,
+                                                                 update=as_unused_update,
+                                                                 return_document=ReturnDocument.AFTER)
+        recipe = RecipeWithId(**recipe_dict_data)
+        return recipe
 
     def take_random_recipe(self) -> Optional[RecipeWithId]:
         """
@@ -166,6 +173,16 @@ class RecipeDB:
     def take_random_recipe(self, user_id: int) -> Optional[RecipeWithId]:
         user = self.__get_user(user_id)
         return user.take_random_recipe()
+
+    def take_recipe_by_id(self, user_id: int, recipe_id: ObjectId) -> RecipeWithId:
+        recipe = self.find_recipe_by_id(user_id, recipe_id)
+        user = self.__get_user(user_id)
+        return user.take_recipe(recipe)
+
+    def unuse_recipe_by_id(self, user_id: int, recipe_id: ObjectId) -> RecipeWithId:
+        user = self.__get_user(user_id)
+        recipe = user.find_recipe_by_id(recipe_id)
+        return user.unuse_recipe(recipe)
 
 
 if __name__ == '__main__':

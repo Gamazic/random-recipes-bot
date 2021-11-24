@@ -60,7 +60,7 @@ def recipes_list_layout(recipes_list: list[RecipeWithId]) -> dict:
 
 @bot.message_handler(commands=['add'])
 def add_recipe(message):
-    msg = bot.reply_to(message, 'Напишите название рецепта')
+    msg = bot.send_message(message.chat.id, 'Напишите название рецепта')
     bot.register_next_step_handler(msg, process_adding_recipe)
 
 
@@ -100,6 +100,16 @@ def create_recipe_details_layout(recipe: RecipeWithId) -> dict:
              f'Статус: *{is_used_status_line}*'
 
     inline_recipe_actions_markup = types.InlineKeyboardMarkup()
+    if recipe.is_used:
+        unuse_callback = RecipeActionCallbackData(id=recipe.id, action='unuse')
+        unuse_button = types.InlineKeyboardButton('Пометить как неиспользованный',
+                                                  callback_data=unuse_callback.json())
+        inline_recipe_actions_markup.add(unuse_button)
+    else:
+        use_callback = RecipeActionCallbackData(id=recipe.id, action='use')
+        use_button = types.InlineKeyboardButton('Использовать рецепт',
+                                                callback_data=use_callback.json())
+        inline_recipe_actions_markup.add(use_button)
     delete_callback = RecipeActionCallbackData(action='delete',
                                                id=recipe.id)
     delete_button = types.InlineKeyboardButton('Удалить',
@@ -115,6 +125,30 @@ def create_recipe_details_layout(recipe: RecipeWithId) -> dict:
         'parse_mode': 'Markdown',
         'reply_markup': inline_recipe_actions_markup
     }
+
+
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_recipe_action_type(call.data, 'use'))
+def use_recipe(call):
+    recipe_callback_data = RecipeActionCallbackData.parse_raw(call.data)
+    recipe_id = recipe_callback_data.id
+    recipe = db.take_recipe_by_id(call.from_user.id, recipe_id)
+    recipe_details_layout = create_recipe_details_layout(recipe)
+    bot.edit_message_text(chat_id=call.from_user.id,
+                          message_id=call.message.id,
+                          inline_message_id=call.inline_message_id,
+                          **recipe_details_layout)
+
+
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_recipe_action_type(call.data, 'unuse'))
+def unuse_recipe(call):
+    recipe_callback_data = RecipeActionCallbackData.parse_raw(call.data)
+    recipe_id = recipe_callback_data.id
+    recipe = db.unuse_recipe_by_id(call.from_user.id, recipe_id)
+    recipe_details_layout = create_recipe_details_layout(recipe)
+    bot.edit_message_text(chat_id=call.from_user.id,
+                          message_id=call.message.id,
+                          inline_message_id=call.inline_message_id,
+                          **recipe_details_layout)
 
 
 @bot.callback_query_handler(func=lambda call: CallbackValidator.validate_recipe_action_type(call.data, 'delete'))
