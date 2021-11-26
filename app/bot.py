@@ -49,9 +49,20 @@ def recipes_list_layout(recipes_list: list[RecipeWithId]) -> dict:
         recipe_details_callback = RecipeActionCallbackData(id=current_recipe.id, action='detail')
         display_is_used_recipe = '\U0001F373' if current_recipe.is_used else ''
         display_recipe_name = current_recipe.name + display_is_used_recipe
-        recipe_keyboard = types.InlineKeyboardButton(display_recipe_name,
-                                                     callback_data=recipe_details_callback.json())
-        inline_recipes_markup.add(recipe_keyboard)
+        recipe_button = types.InlineKeyboardButton(display_recipe_name,
+                                                   callback_data=recipe_details_callback.json())
+        inline_recipes_markup.add(recipe_button)
+    random_recipe_callback = ActionCallbackData(action='random')
+    random_recipe_button = types.InlineKeyboardButton('Случайный рецепт',
+                                                      callback_data=random_recipe_callback.json())
+    add_recipe_callback = ActionCallbackData(action='add')
+    add_recipe_button = types.InlineKeyboardButton('Добавить рецепт',
+                                                   callback_data=add_recipe_callback.json())
+    unuse_all_callback = ActionCallbackData(action='unuse')
+    unuse_all_button = types.InlineKeyboardButton('Пометить все как неиспользованный',
+                                                  callback_data=unuse_all_callback.json())
+    inline_recipes_markup.add(random_recipe_button, add_recipe_button)
+    inline_recipes_markup.add(unuse_all_button)
     return {
         'text': 'Список',
         'reply_markup': inline_recipes_markup
@@ -64,10 +75,28 @@ def add_recipe(message):
     bot.register_next_step_handler(msg, process_adding_recipe)
 
 
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_action_type(call.data, 'add'))
+def add_recipe_callback(call):
+    msg = bot.send_message(call.from_user.id, 'Напишите название рецепта')
+    bot.register_next_step_handler(msg, process_adding_recipe)
+
+
 def process_adding_recipe(message):
     db.add_recipe_by_name(message.chat.id, message.text)
     bot.send_message(message.chat.id, f'Добавлен рецепт\n`{message.text}`',
                      parse_mode='Markdown')
+
+
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_action_type(call.data, 'unuse'))
+def mark_all_recipes_as_unused(call):
+    if db.user_has_used_recipes(call.from_user.id):
+        db.unuse_all_recipes(call.from_user.id)
+        recipes = db.list_recipes(call.from_user.id)
+        layout = recipes_list_layout(recipes)
+        bot.edit_message_text(chat_id=call.from_user.id,
+                              message_id=call.message.id,
+                              inline_message_id=call.inline_message_id,
+                              **layout)
 
 
 @bot.message_handler(commands=['random'])
@@ -78,6 +107,22 @@ def take_random_recipe(message):
     else:
         recipe_details_layout = create_recipe_details_layout(recipe)
         bot.send_message(message.chat.id, **recipe_details_layout)
+
+
+@bot.callback_query_handler(func=lambda call: CallbackValidator.validate_action_type(call.data, 'random'))
+def take_random_recipe_callback(call):
+    recipe = db.take_random_recipe(call.from_user.id)
+    if recipe is None:
+        bot.edit_message_text(chat_id=call.from_user.id,
+                              message_id=call.message.id,
+                              inline_message_id=call.inline_message_id,
+                              text='Список рецептов пуст. Чтобы добавить рецепт нажмите кнопку "Добавить"')
+    else:
+        recipe_details_layout = create_recipe_details_layout(recipe)
+        bot.edit_message_text(chat_id=call.from_user.id,
+                              message_id=call.message.id,
+                              inline_message_id=call.inline_message_id,
+                              **recipe_details_layout)
 
 
 @bot.callback_query_handler(func=lambda call: CallbackValidator.validate_recipe_action_type(call.data, 'detail'))

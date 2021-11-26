@@ -184,6 +184,15 @@ class RecipeDB:
         recipe = user.find_recipe_by_id(recipe_id)
         return user.unuse_recipe(recipe)
 
+    def unuse_all_recipes(self, user_id: int):
+        user = self.__get_user(user_id)
+        user.unuse_all_recipes()
+
+    def user_has_used_recipes(self, user_id: int):
+        user = self.__get_user(user_id)
+        used_recipes = user.list_recipes(filter={'is_used': True})
+        return len(used_recipes) > 0
+
 
 if __name__ == '__main__':
     db = RecipeDB()
