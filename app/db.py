@@ -6,8 +6,8 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection, ReturnDocument
 
-from recipe_shema import RecipeWithId, Recipe
-from exceptions import UserHasNoRecipesError
+from app.recipe_shema import RecipeWithId, Recipe
+from app.exceptions import UserHasNoRecipesError
 
 
 def _connect_to_db() -> Database:
@@ -85,7 +85,7 @@ def does_user_have_used_recipes(user_id: int) -> bool:
 
 
 def take_random_recipe(user_id: int) -> RecipeWithId:
-    if does_user_have_recipes(user_id):
+    if not does_user_have_recipes(user_id):
         raise UserHasNoRecipesError(f'User {user_id} has no recipes')
     not_used_recipes_filter = {'is_used': False}
     unused_recipes = _list_user_recipes_by_filter(user_id, not_used_recipes_filter)
@@ -93,7 +93,7 @@ def take_random_recipe(user_id: int) -> RecipeWithId:
         unuse_all_recipes(user_id)
         unused_recipes = _list_user_recipes_by_filter(user_id, not_used_recipes_filter)
     random_recipe = random.choice(unused_recipes)
-    return take_recipe_by_id(random_recipe.id)
+    return take_recipe_by_id(user_id, random_recipe.id)
 
 
 def unuse_all_recipes(user_id: int) -> None:
