@@ -1,7 +1,3 @@
-"""Как мне кажется, фреймворк для бота выбран не очень удачно,
-потому что сложно найти хорошие примеры разбиения хэндлеров по модулям.
-Я не понял как грамотно избежать circular import в этой библиотеке,
-поэтому все хэндлеры будут тут."""
 import os
 from functools import partial
 
@@ -9,17 +5,16 @@ import telebot
 
 from app import db
 from app.callback_shema import (AddRecipeCallbackData,
-                                           DeleteRecipeCallbackData,
-                                           RandomRecipeCallbackData,
-                                           RecipeDetailsCallbackData,
-                                           ShowRecipesListCallbackData,
-                                           UnuseAllRecipesCallbackData,
-                                           UnuseRecipeCallbackData,
-                                           UseRecipeCallbackData,
-                                           is_valid_schema)
+                                DeleteRecipeCallbackData,
+                                RandomRecipeCallbackData,
+                                RecipeDetailsCallbackData,
+                                ShowRecipesListCallbackData,
+                                UnuseAllRecipesCallbackData,
+                                UnuseRecipeCallbackData, UseRecipeCallbackData,
+                                is_valid_schema)
 from app.exceptions import UserHasNoRecipesError
 from app.gui.layouts import (create_recipe_details_layout,
-                                        create_recipes_list_layout)
+                             create_recipes_list_layout)
 
 
 bot = telebot.TeleBot(os.environ['TG_TOKEN'])
