@@ -2,21 +2,10 @@
 Preview:
 ![Preview](tg_app_screenshots/random-recipes-bot-alpha-v0.1.jpg)
 
-## ALPHA 1: working mvp app
-
-* **Все команды через `/<command>`, а не через сообщение.**
-* **всплывающие подсказки с командами**
-* **Подумать, нужны ли условия на валидации. Может быть лучше `try/except`**
-* **validate callback function (Выладирует callback по классу (CallbackData) и callback.data)**
-* **inline кнопка *использовать* в меню деталей рецепта.**
-* **inline кнопки *Выбрать случайный*, *Добавить*, *Обнулить все* в меню списка рецептов.**
-
+# Roadmap
 ## ALPHA 2: module refactoring
 
-* Все стринги вроде 'delete', 'action' вынести в константы либо еще как то хранить.
-* Раскидать все по модулям, сделать красиво
 * poetry
-* python3.10
 
 ## BETA 1: single thread app
 
