@@ -3,10 +3,6 @@ Preview:
 ![Preview](tg_app_screenshots/random-recipes-bot-alpha-v0.1.jpg)
 
 # Roadmap
-## ALPHA 2: module refactoring
-
-* poetry
-
 ## BETA 1: single thread app
 
 * Welcome message
