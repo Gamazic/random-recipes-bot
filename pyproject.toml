@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "random-recipes-bot"
+version = "0.1.0"
+description = ""
+authors = ["NABurov <NABurov@greenatom.ru>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flake8 = "^4.0.1"
+pyTelegramBotAPI = "^4.2.2"
+pymongo = "^4.0.1"
+pydantic = "^1.8.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
