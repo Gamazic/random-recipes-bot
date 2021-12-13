@@ -2,7 +2,7 @@
 name = "random-recipes-bot"
 version = "0.1.0"
 description = ""
-authors = ["NABurov <NABurov@greenatom.ru>"]
+authors = ["NABurov <nikita.nov.ru@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"

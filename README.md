@@ -23,6 +23,7 @@ Preview:
 - [X] Все стринги вроде 'delete', 'action' вынести в константы либо еще как то хранить.
 - [X] Раскидать все по модулям, сделать красиво
 - [X] poetry
+- [ ] Documentation
 
 ## BETA 1: single thread app
 
