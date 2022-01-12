@@ -2,7 +2,6 @@ from app.callback_shema import (CallbackData, DeleteRecipeCallbackData,
                                 RecipeDetailsCallbackData,
                                 UnuseRecipeCallbackData, UseRecipeCallbackData)
 from app.recipe_shema import RecipeWithId
-# from telebot import types
 from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 
 

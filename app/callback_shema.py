@@ -1,7 +1,7 @@
 from bson import json_util
 from bson.objectid import ObjectId
 from pydantic import BaseModel, ValidationError
-from telebot import types
+from aiogram.types.callback_query import CallbackQuery
 
 
 class CallbackData(BaseModel):
@@ -33,7 +33,7 @@ class DeleteRecipeCallbackData(CallbackData, RecipeIdCallbackData):
     action: str = 'delete'
 
 
-def is_valid_schema(callback: types.CallbackQuery, schema: CallbackData) -> bool:
+def is_valid_schema(callback: CallbackQuery, schema: CallbackData) -> bool:
     """Проверяет, подходит ли json raw_data к схеме schema
 
     Args:

@@ -7,7 +7,6 @@ authors = ["NABurov <nikita.nov.ru@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 flake8 = "^4.0.1"
-pyTelegramBotAPI = "^4.2.2"
 pymongo = "^4.0.1"
 pydantic = "^1.8.2"
 python-dotenv = "^0.19.2"
