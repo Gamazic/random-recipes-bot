@@ -2,14 +2,15 @@ from app.callback_shema import (CallbackData, DeleteRecipeCallbackData,
                                 RecipeDetailsCallbackData,
                                 UnuseRecipeCallbackData, UseRecipeCallbackData)
 from app.recipe_shema import RecipeWithId
-from telebot import types
+# from telebot import types
+from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def create_inline_keyboard_button(
     button_text: str,
     callback_class: CallbackData,
     callback_data: dict = {}
-) -> types.InlineKeyboardMarkup:
+) -> InlineKeyboardMarkup:
     """Создает inline кнопку бота. В callback записывается json,
     сформированный из экземпляра callback_class.
 
@@ -19,14 +20,14 @@ def create_inline_keyboard_button(
         callback_data (dict): все что необходимо всунуть в колбэк.
 
     Returns:
-        types.InlineKeyboardMarkup: кнопка.
+        InlineKeyboardMarkup: кнопка.
     """
     callback_data = callback_class(**callback_data)
-    return types.InlineKeyboardButton(button_text, callback_data=callback_data.json())
+    return InlineKeyboardButton(button_text, callback_data=callback_data.json())
 
 
-def create_inline_markup_from_buttons(buttons: list[list[types.InlineKeyboardButton]]):
-    inline_markup = types.InlineKeyboardMarkup()
+def create_inline_markup_from_buttons(buttons: list[list[InlineKeyboardButton]]):
+    inline_markup = InlineKeyboardMarkup()
     for button_row in buttons:
         inline_markup.add(*button_row)
     return inline_markup

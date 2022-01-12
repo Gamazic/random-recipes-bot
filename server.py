@@ -1,6 +1,10 @@
 import os
 from functools import partial
 
+from aiogram.types import ParseMode
+from aiogram import Bot, Dispatcher, executor
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
 from app import db
@@ -15,115 +19,123 @@ from app.gui.markups import recipes_list_inline_keyboard_markup
 
 load_dotenv()
 
+bot = Bot(token=os.environ['TG_TOKEN'])
+storage = MemoryStorage()
+dp = Dispatcher(bot, storage=storage)
 
-@bot.message_handler(commands=['start'])
-def start(message):
+
+class AddRecipeStates(StatesGroup):
+    recipe_name = State()
+
+
+@dp.message_handler(commands=['start', 'help'])
+async def start(message):
     welcome_message = 'Привет! Инструкция пока не готова. Но бот работоспособный.'
-    bot.send_message(message.chat.id, welcome_message)
+    await message.answer(welcome_message)
 
 
-@bot.message_handler(commands=['list'])
-def show_recipes_list(message):
+@dp.message_handler(commands=['list'])
+async def show_recipes_list(message):
     recipes = db.list_user_recipes(message.chat.id)
     if not recipes:
-        bot.send_message(message.chat.id, text='Список рецептов пуст.')
+        await message.answer(text='Список рецептов пуст.')
     else:
         markup = recipes_list_inline_keyboard_markup(recipes)
         text = 'Список рецептов:'
-        bot.send_message(message.chat.id, text=text, reply_markup=markup)
+        await message.answer(text=text, reply_markup=markup)
 
 
-@bot.message_handler(commands=['add'])
-def add_recipe(message):
-    msg = bot.send_message(message.chat.id, 'Напишите название рецепта')
-    bot.register_next_step_handler(msg, process_adding_recipe)
+@dp.message_handler(commands=['add'])
+async def add_recipe(message):
+    await AddRecipeStates.recipe_name.set()
+    await message.answer('Напишите название рецепта')
 
 
-def process_adding_recipe(message):
+@dp.message_handler(state=AddRecipeStates.recipe_name)
+async def process_recipe_name(message, state):
     db.add_recipe_by_name(message.chat.id, message.text)
-    bot.send_message(message.chat.id, f'Добавлен рецепт\n`{message.text}`',
-                     parse_mode='Markdown')
+    await message.answer(f'Добавлен рецепт\n`{message.text}`', parse_mode=ParseMode.MARKDOWN)
+    await state.finish()
 
 
-@bot.message_handler(commands=['random'])
-def take_random_recipe(message):
+@dp.message_handler(commands=['random'])
+async def take_random_recipe(message):
     try:
         recipe = db.take_random_recipe(message.chat.id)
     except UserHasNoRecipesError:
-        bot.send_message(message.chat.id, text='Список рецептов пуст. Чтобы добавить рецепт нажмите кнопку "Добавить"')
+        await message.answer(text='Список рецептов пуст. Чтобы добавить рецепт отправьте "/add"')
         return
     text = 'Рецепт:\n' \
-           f'**{recipe.name}**'
-    bot.send_message(message.chat.id, text=text)
+           f'*{recipe.name}*'
+    await message.answer(text=text, parse_mode=ParseMode.MARKDOWN)
 
 
-@bot.message_handler(commands=['unuse_all'])
-def mark_all_recipes_as_unused(message):
+@dp.message_handler(commands=['unuse_all'])
+async def mark_all_recipes_as_unused(message):
     # Все таки лучше избавится от этого условия, слишком много логики для сервера
     if db.does_user_have_used_recipes(message.chat.id):
         db.unuse_all_recipes(message.chat.id)
-    bot.send_message(message.chat.id, f'Все рецепты помечены как неиспользованные.')
+    await message.answer('Все рецепты помечены как неиспользованные.')
 
 
-@bot.callback_query_handler(func=partial(is_valid_schema, schema=RecipeDetailsCallbackData))
-def show_recipe_details(call):
+@dp.callback_query_handler(partial(is_valid_schema, schema=RecipeDetailsCallbackData))
+async def show_recipe_details(call):
     recipe_callback_data = RecipeDetailsCallbackData.parse_raw(call.data)
     try:
         recipe = db.find_recipe_by_id(call.from_user.id,
                                       recipe_callback_data.id)
     except UserHasNoSelectedRecipeError:
-        bot.send_message(chat_id=call.from_user.id, text='Ошибка! Рецепт отсутствует.')
+        await call.answer(text='Ошибка! Рецепт отсутствует.')
         return
-
     recipe_details_layout = create_recipe_details_layout(recipe)
-    bot.edit_message_text(chat_id=call.from_user.id,
-                          message_id=call.message.id,
-                          inline_message_id=call.inline_message_id,
-                          **recipe_details_layout)
+    await bot.edit_message_text(chat_id=call.from_user.id,
+                                message_id=call.message.message_id,
+                                **recipe_details_layout)
 
 
-@bot.callback_query_handler(func=partial(is_valid_schema, schema=UseRecipeCallbackData))
-def use_recipe(call):
+@dp.callback_query_handler(partial(is_valid_schema, schema=UseRecipeCallbackData))
+async def use_recipe(call):
     recipe_callback_data = UseRecipeCallbackData.parse_raw(call.data)
     recipe_id = recipe_callback_data.id
     try:
         recipe = db.take_recipe_by_id(call.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
-        bot.send_message(chat_id=call.from_user.id, text='Ошибка! Рецепт отсутствует.')
+        await call.answer(text='Ошибка! Рецепт отсутствует.')
         return
     recipe_details_layout = create_recipe_details_layout(recipe)
-    bot.edit_message_text(chat_id=call.from_user.id,
-                          message_id=call.message.id,
-                          inline_message_id=call.inline_message_id,
-                          **recipe_details_layout)
+    await bot.edit_message_text(chat_id=call.from_user.id,
+                                message_id=call.message.message_id,
+                                inline_message_id=call.inline_message_id,
+                                **recipe_details_layout)
 
 
-@bot.callback_query_handler(func=partial(is_valid_schema, schema=UnuseRecipeCallbackData))
-def unuse_recipe(call):
+@dp.callback_query_handler(partial(is_valid_schema, schema=UnuseRecipeCallbackData))
+async def unuse_recipe(call):
     recipe_callback_data = UnuseRecipeCallbackData.parse_raw(call.data)
     recipe_id = recipe_callback_data.id
     try:
         recipe = db.unuse_and_find_recipe_by_id(call.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
-        bot.send_message(chat_id=call.from_user.id, text='Ошибка! Рецепт отсутствует.')
+        await call.answer(text='Ошибка! Рецепт отсутствует.')
         return
     recipe_details_layout = create_recipe_details_layout(recipe)
-    bot.edit_message_text(chat_id=call.from_user.id,
-                          message_id=call.message.id,
-                          inline_message_id=call.inline_message_id,
-                          **recipe_details_layout)
+    await bot.edit_message_text(chat_id=call.from_user.id,
+                                message_id=call.message.message_id,
+                                inline_message_id=call.inline_message_id,
+                                **recipe_details_layout)
 
 
-@bot.callback_query_handler(func=partial(is_valid_schema, schema=DeleteRecipeCallbackData))
-def delete_recipe(call):
+@dp.callback_query_handler(partial(is_valid_schema, schema=DeleteRecipeCallbackData))
+async def delete_recipe(call):
     recipe_callback_data = DeleteRecipeCallbackData.parse_raw(call.data)
     db.remove_recipe_by_id(call.from_user.id, recipe_callback_data.id)
     answer = 'Рецепт удален.'
-    bot.edit_message_text(text=answer,
-                          chat_id=call.from_user.id,
-                          message_id=call.message.id,
-                          inline_message_id=call.inline_message_id,
-                          parse_mode='Markdown')
+    await bot.edit_message_text(text=answer,
+                                chat_id=call.from_user.id,
+                                message_id=call.message.message_id,
+                                inline_message_id=call.inline_message_id,
+                                parse_mode=ParseMode.MARKDOWN)
 
 
-bot.polling()
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)

@@ -27,6 +27,7 @@ Preview:
 - [X] Handling all kinds of exceptions (For example for clock on already deleted recipes)
 
 ## BETA 2: async app
+- [X] Async bot
 - [ ] Async mongo
 - [ ] Async fastapi webhook
 
