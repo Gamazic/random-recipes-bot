@@ -1,6 +1,4 @@
-from pymongo.database import Database
-
-from app.gui.markups import recipe_details_markup, recipes_list_inline_keyboard_markup
+from app.gui.markups import recipe_details_markup
 from app.recipe_shema import RecipeWithId
 
 
