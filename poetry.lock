@@ -111,6 +111,17 @@ json = ["ujson"]
 redis = ["redis (>=3.4.1)"]
 
 [[package]]
+name = "python-dotenv"
+version = "0.19.2"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "requests"
 version = "2.26.0"
 description = "Python HTTP for Humans."
@@ -152,7 +163,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "bd45e39ca3d855720608dd72dcd724a62818ce788aa7d0d135dd925dc8be725f"
+content-hash = "2d49b0c4c26e4fabfeee96007a45a8925ad0bd8b05f1dc6e43f4f4449e87fcfe"
 
 [metadata.files]
 certifi = [
@@ -294,6 +305,10 @@ pymongo = [
 ]
 pytelegrambotapi = [
     {file = "pyTelegramBotAPI-4.2.2.tar.gz", hash = "sha256:7f813e84dd44d3e079c54d8e94b7a8f67732d68c9e45483ed44e566b690d065e"},
+]
+python-dotenv = [
+    {file = "python-dotenv-0.19.2.tar.gz", hash = "sha256:a5de49a31e953b45ff2d2fd434bbc2670e8db5273606c1e737cc6b93eff3655f"},
+    {file = "python_dotenv-0.19.2-py2.py3-none-any.whl", hash = "sha256:32b2bdc1873fd3a3c346da1c6db83d0053c3c62f28f1f38516070c4c8971b1d3"},
 ]
 requests = [
     {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
