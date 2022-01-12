@@ -28,8 +28,13 @@ def start(message):
 
 @bot.message_handler(commands=['list'])
 def show_recipes_list(message):
-    layout = create_recipes_list_layout(message.chat.id, db)
-    bot.send_message(message.chat.id, **layout)
+    recipes = db.list_user_recipes(message.chat.id)
+    if not recipes:
+        bot.send_message(message.chat.id, text='Список рецептов пуст.')
+    else:
+        markup = recipes_list_inline_keyboard_markup(recipes)
+        text = 'Список рецептов:'
+        bot.send_message(message.chat.id, text=text, reply_markup=markup)
 
 
 @bot.message_handler(commands=['add'])
