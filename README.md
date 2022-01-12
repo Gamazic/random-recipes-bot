@@ -10,35 +10,38 @@ Preview:
 # Roadmap
 
 ## ALPHA 1: working mvp app
-- [X] Все команды через `/<command>`, а не через сообщение.
-- [X] всплывающие подсказки с командами
-- [X] Подумать, нужны ли условия на валидации. Может быть лучше `try/except`
-- [X] validate callback function (Выладирует callback по классу (CallbackData) и callback.data)
-- [X] inline кнопка *использовать* в меню деталей рецепта.
-- [X] inline кнопки *Выбрать случайный*, *Добавить*, *Обнулить все* в меню списка рецептов.
+- [X] All commands via `/<command>`, not via messages.
+- [X] Tooltips with commands
+- [X] Create callback validation condition `try/except`
+- [X] Validate callback function
+- [X] Inline button *use* in recipe details menu.
+- [X] Inline buttons *Choose random*, *Add*, *Unuse all* in recipes list menu.
 
 ## ALPHA 2: module refactoring
-- [X] Все стринги вроде 'delete', 'action' вынести в константы либо еще как то хранить.
-- [X] Раскидать все по модулям, сделать красиво
-- [X] poetry
-- [ ] Documentation
+- [X] Put all strings into constant.
+- [X] Modules, functions, beautifull
+- [X] Poetry
 
 ## BETA 1: single thread app
-- [ ] Делать некликабельными/удалять неактуальные inline keyboard
-- [ ] обработка всевозможных исключений (например, когда кликаешь по уже удаленному рецепту в старом inline keyboard)
-- [ ] Переработать логику бота. Убрать лишние возможности, дублирующие возможности.
+- [X] Rework logic of the bot. Remove unnecessary features, duplicate features.
+- [X] Handling all kinds of exceptions (For example for clock on already deleted recipes)
 
 ## BETA 2: async app
-- [ ] async mongo
-- [ ] async fastapi webhook
+- [ ] Async mongo
+- [ ] Async fastapi webhook
+
+## BETA 3: final refactoring
+- [ ] Documentation
+- [ ] Naming
 
 ## REALISE 1:
 - [ ] Welcome message
-- [ ] хостинг
-- [ ] пагинация рецептов
-- [ ] final refactoring
+- [ ] Hosting
 
 # FEATURES:
-- [ ] Возможность делиться рецептом
-    - [ ] Случайным
-    - [ ] Списком
+- Change names of commands:
+    - [ ] `list` not just a list, but also actions on recipes.
+- [ ] recipes pagination
+- [ ] The ability to share a recipes
+    - [ ] Random
+    - [ ] List
