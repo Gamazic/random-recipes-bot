@@ -1,7 +1,7 @@
 import os
 from functools import partial
 
-import telebot
+from dotenv import load_dotenv
 
 from app import db
 from app.callback_shema import (DeleteRecipeCallbackData,
@@ -13,7 +13,7 @@ from app.gui.layouts import create_recipe_details_layout
 from app.gui.markups import recipes_list_inline_keyboard_markup
 
 
-bot = telebot.TeleBot(os.environ['TG_TOKEN'])
+load_dotenv()
 
 
 @bot.message_handler(commands=['start'])

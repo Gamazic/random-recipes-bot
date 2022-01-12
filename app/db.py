@@ -2,7 +2,6 @@ import os
 import random
 from bson.objectid import ObjectId
 
-from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection, ReturnDocument
@@ -12,7 +11,6 @@ from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 
 
 def _connect_to_db() -> Database:
-    load_dotenv()
     db_user = os.environ['MONGO_USER']
     db_password = os.environ['MONGO_PASSWORD']
     host = os.environ['MONGO_HOST']
