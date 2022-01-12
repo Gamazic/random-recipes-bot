@@ -2,15 +2,17 @@ import os
 import random
 from bson.objectid import ObjectId
 
+from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection, ReturnDocument
 
 from app.recipe_shema import RecipeWithId, Recipe
-from app.exceptions import UserHasNoRecipesError
+from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 
 
 def _connect_to_db() -> Database:
+    load_dotenv()
     db_user = os.environ['MONGO_USER']
     db_password = os.environ['MONGO_PASSWORD']
     host = os.environ['MONGO_HOST']
@@ -64,6 +66,8 @@ def find_recipe_by_id(user_id: int, recipe_id: ObjectId) -> RecipeWithId:
     user_collection = _dispatch_user_id(user_id)
     recipe_id_filter = {'_id': recipe_id}
     recipe_db_document = user_collection.find_one(filter=recipe_id_filter)
+    if recipe_db_document is None:
+        raise UserHasNoSelectedRecipeError
     return RecipeWithId(**recipe_db_document)
 
 
@@ -110,6 +114,8 @@ def take_recipe_by_id(user_id: int, recipe_id: ObjectId) -> RecipeWithId:
     recipe_db_document = user_collection.find_one_and_update(filter=recipe_id_filter,
                                                              update=as_used_update,
                                                              return_document=ReturnDocument.AFTER)
+    if recipe_db_document is None:
+        raise UserHasNoSelectedRecipeError
     recipe = RecipeWithId(**recipe_db_document)
     return recipe
 
