@@ -33,22 +33,6 @@ class DeleteRecipeCallbackData(CallbackData, RecipeIdCallbackData):
     action: str = 'delete'
 
 
-class ShowRecipesListCallbackData(CallbackData):
-    action: str = 'show_recipes_list'
-
-
-class RandomRecipeCallbackData(CallbackData):
-    action: str = 'random'
-
-
-class AddRecipeCallbackData(CallbackData):
-    action: str = 'add'
-
-
-class UnuseAllRecipesCallbackData(CallbackData):
-    action: str = 'unuse_all'
-
-
 def is_valid_schema(callback: types.CallbackQuery, schema: CallbackData) -> bool:
     """Проверяет, подходит ли json raw_data к схеме schema
 
