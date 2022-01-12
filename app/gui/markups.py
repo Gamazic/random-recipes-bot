@@ -1,9 +1,5 @@
-from app.callback_shema import (AddRecipeCallbackData, CallbackData,
-                                DeleteRecipeCallbackData,
-                                RandomRecipeCallbackData,
+from app.callback_shema import (CallbackData, DeleteRecipeCallbackData,
                                 RecipeDetailsCallbackData,
-                                ShowRecipesListCallbackData,
-                                UnuseAllRecipesCallbackData,
                                 UnuseRecipeCallbackData, UseRecipeCallbackData)
 from app.recipe_shema import RecipeWithId
 from telebot import types
@@ -50,8 +46,7 @@ def recipe_details_markup(recipe: RecipeWithId) -> dict:
                                                           id_data)
         buttons.append([use_recipe_button])
     delete_button = create_inline_keyboard_button('Удалить', DeleteRecipeCallbackData, id_data)
-    list_recipes_button = create_inline_keyboard_button('К списку рецептов', ShowRecipesListCallbackData, id_data)
-    buttons.append([delete_button, list_recipes_button])
+    buttons.append([delete_button])
     markup = create_inline_markup_from_buttons(buttons)
     return markup
 
@@ -65,11 +60,5 @@ def recipes_list_inline_keyboard_markup(recipes_list: list[RecipeWithId]) -> dic
         id_data = {'id': current_recipe.id}
         recipe_button = create_inline_keyboard_button(display_recipe_name, RecipeDetailsCallbackData, id_data)
         buttons.append([recipe_button])
-    random_recipe_button = create_inline_keyboard_button('Случайный рецепт', RandomRecipeCallbackData)
-    add_new_recipe_button = create_inline_keyboard_button('Добавить рецепт', AddRecipeCallbackData)
-    unuse_all_recipes_button = create_inline_keyboard_button('Пометить все как неиспользованный', UnuseAllRecipesCallbackData)
-    buttons.append([random_recipe_button, add_new_recipe_button])
-    buttons.append([unuse_all_recipes_button])
-
     markup = create_inline_markup_from_buttons(buttons)
     return markup
