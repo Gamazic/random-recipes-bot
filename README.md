@@ -35,6 +35,7 @@ Preview:
 - [ ] Documentation
 - [ ] Naming
 - [ ] Tests
+- [ ] Logging
 
 ## REALISE 1:
 - [ ] Welcome message
