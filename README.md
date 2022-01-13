@@ -29,7 +29,6 @@ Preview:
 ## BETA 2: async app
 - [X] Async bot
 - [X] Async mongo
-- [ ] Async fastapi webhook
 
 ## BETA 3: final refactoring
 - [ ] Documentation
