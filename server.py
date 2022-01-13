@@ -1,10 +1,10 @@
 import os
 from functools import partial
 
-from aiogram.types import ParseMode
 from aiogram import Bot, Dispatcher, executor
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ParseMode
 from dotenv import load_dotenv
 
 from app import db
@@ -36,7 +36,7 @@ async def start(message):
 
 @dp.message_handler(commands=['list'])
 async def show_recipes_list(message):
-    recipes = db.list_user_recipes(message.chat.id)
+    recipes = await db.list_user_recipes(message.chat.id)
     if not recipes:
         await message.answer(text='Список рецептов пуст.')
     else:
@@ -53,7 +53,7 @@ async def add_recipe(message):
 
 @dp.message_handler(state=AddRecipeStates.recipe_name)
 async def process_recipe_name(message, state):
-    db.add_recipe_by_name(message.chat.id, message.text)
+    await db.add_recipe_by_name(message.chat.id, message.text)
     await message.answer(f'Добавлен рецепт\n`{message.text}`', parse_mode=ParseMode.MARKDOWN)
     await state.finish()
 
@@ -61,7 +61,7 @@ async def process_recipe_name(message, state):
 @dp.message_handler(commands=['random'])
 async def take_random_recipe(message):
     try:
-        recipe = db.take_random_recipe(message.chat.id)
+        recipe = await db.take_random_recipe(message.chat.id)
     except UserHasNoRecipesError:
         await message.answer(text='Список рецептов пуст. Чтобы добавить рецепт отправьте "/add"')
         return
@@ -72,9 +72,9 @@ async def take_random_recipe(message):
 
 @dp.message_handler(commands=['unuse_all'])
 async def mark_all_recipes_as_unused(message):
-    # Все таки лучше избавится от этого условия, слишком много логики для сервера
-    if db.does_user_have_used_recipes(message.chat.id):
-        db.unuse_all_recipes(message.chat.id)
+    # TODO Все таки лучше избавится от этого условия, слишком много логики для сервера
+    if (await db.does_user_have_used_recipes(message.chat.id)):
+        await db.unuse_all_recipes(message.chat.id)
     await message.answer('Все рецепты помечены как неиспользованные.')
 
 
@@ -82,8 +82,8 @@ async def mark_all_recipes_as_unused(message):
 async def show_recipe_details(call):
     recipe_callback_data = RecipeDetailsCallbackData.parse_raw(call.data)
     try:
-        recipe = db.find_recipe_by_id(call.from_user.id,
-                                      recipe_callback_data.id)
+        recipe = await db.find_recipe_by_id(call.from_user.id,
+                                            recipe_callback_data.id)
     except UserHasNoSelectedRecipeError:
         await call.answer(text='Ошибка! Рецепт отсутствует.')
         return
@@ -98,7 +98,7 @@ async def use_recipe(call):
     recipe_callback_data = UseRecipeCallbackData.parse_raw(call.data)
     recipe_id = recipe_callback_data.id
     try:
-        recipe = db.take_recipe_by_id(call.from_user.id, recipe_id)
+        recipe = await db.take_recipe_by_id(call.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
         await call.answer(text='Ошибка! Рецепт отсутствует.')
         return
@@ -114,7 +114,7 @@ async def unuse_recipe(call):
     recipe_callback_data = UnuseRecipeCallbackData.parse_raw(call.data)
     recipe_id = recipe_callback_data.id
     try:
-        recipe = db.unuse_and_find_recipe_by_id(call.from_user.id, recipe_id)
+        recipe = await db.unuse_and_find_recipe_by_id(call.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
         await call.answer(text='Ошибка! Рецепт отсутствует.')
         return
@@ -128,7 +128,7 @@ async def unuse_recipe(call):
 @dp.callback_query_handler(partial(is_valid_schema, schema=DeleteRecipeCallbackData))
 async def delete_recipe(call):
     recipe_callback_data = DeleteRecipeCallbackData.parse_raw(call.data)
-    db.remove_recipe_by_id(call.from_user.id, recipe_callback_data.id)
+    await db.remove_recipe_by_id(call.from_user.id, recipe_callback_data.id)
     answer = 'Рецепт удален.'
     await bot.edit_message_text(text=answer,
                                 chat_id=call.from_user.id,
