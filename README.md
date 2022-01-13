@@ -34,6 +34,7 @@ Preview:
 ## BETA 3: final refactoring
 - [ ] Documentation
 - [ ] Naming
+- [ ] Tests
 
 ## REALISE 1:
 - [ ] Welcome message
