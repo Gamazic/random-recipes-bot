@@ -42,7 +42,8 @@ Preview:
 - [ ] Hosting
 
 # FEATURES:
-- Change names of commands:
+- [X] Docker
+- [ ] Change names of commands:
     - [ ] `list` not just a list, but also actions on recipes.
 - [ ] recipes pagination
 - [ ] The ability to share a recipes

@@ -1,8 +1,27 @@
 version: '3.3'
 
 services:
-    mongo:
-        image: mongo
-        container_name: mongodb
-        ports: 
-          - 27017:27017
+  mongo:
+    image: mongo
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
+    env_file:
+      - .env
+    volumes:
+      - mongodb:/data/db
+    ports: 
+      - 27017:27017
+
+  bot:
+    container_name: recipes-bot
+    build: ./
+    restart: on-failure
+    env_file: 
+      - .env
+    depends_on:
+      - mongo
+
+volumes:
+  mongodb:
