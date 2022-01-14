@@ -20,6 +20,8 @@ services:
     restart: on-failure
     env_file: 
       - .env
+    volumes:
+      - logs:/home/logs
     depends_on:
       - mongo
 

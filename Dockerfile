@@ -15,5 +15,6 @@ RUN set +x \
 # copy code & install dependencies
 COPY . /home/
 RUN poetry install -n --no-dev
+VOLUME ["/home/logs"]
 
 ENTRYPOINT ["python", "server.py"]
