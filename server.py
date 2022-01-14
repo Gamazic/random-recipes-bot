@@ -8,9 +8,9 @@ from aiogram.types import ParseMode
 
 from app import db
 from app.callback_data_schema import (DeleteRecipeCallbackData,
-                                     RecipeDetailsCallbackData,
-                                     UnuseRecipeCallbackData,
-                                     UseRecipeCallbackData, is_valid_schema_for_callback)
+                                      RecipeDetailsCallbackData,
+                                      UnuseRecipeCallbackData,
+                                      UseRecipeCallbackData, is_valid_schema_for_callback)
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.keyboards.layouts import create_recipe_details_layout
 from app.keyboards.markups import recipes_list_inline_keyboard_markup
