@@ -1,42 +1,58 @@
 from aiogram.types.inline_keyboard import (InlineKeyboardButton,
                                            InlineKeyboardMarkup)
+from pydantic import BaseModel
 
-from app.callback_data_shema import (ActionCallbackData,
-                                     DeleteRecipeCallbackData,
-                                     RecipeDetailsCallbackData,
-                                     UnuseRecipeCallbackData,
-                                     UseRecipeCallbackData)
+from app.callback_data_schema import (DeleteRecipeCallbackData,
+                                      RecipeDetailsCallbackData,
+                                      UnuseRecipeCallbackData,
+                                      UseRecipeCallbackData)
 from app.recipe_shema import RecipeWithId
 
 
 def create_inline_keyboard_button(
     button_text: str,
-    callback_class: ActionCallbackData,
+    callback_class: BaseModel,
     callback_data: dict = {}
 ) -> InlineKeyboardMarkup:
-    """Создает inline кнопку бота. В callback записывается json,
-    сформированный из экземпляра callback_class.
+    """Creates an inline bot keyboard button.
+    The json generated from the callback_class instance is written to the callback.
 
     Args:
-        button_text (str): Надпись на кнопке
-        callback_class (CallbackData): pydantic класс колбэка
-        callback_data (dict): все что необходимо всунуть в колбэк.
+        button_text (str): button text.
+        callback_class (BaseModel): callback data schema.
+        callback_data (dict): callback data for schema.
 
     Returns:
-        InlineKeyboardMarkup: кнопка.
+        InlineKeyboardMarkup: telegram bot button.
     """
     callback_data = callback_class(**callback_data)
     return InlineKeyboardButton(button_text, callback_data=callback_data.json())
 
 
-def create_inline_markup_from_buttons(buttons: list[list[InlineKeyboardButton]]):
+def create_inline_markup_from_buttons(buttons: list[list[InlineKeyboardButton]]) -> InlineKeyboardMarkup:
+    """Create bot markup with keyboard buttons.
+
+    Args:
+        buttons (list[list[InlineKeyboardButton]]): telegram button
+
+    Returns:
+        InlineKeyboardMarkup: telegram bot markup.
+    """
     inline_markup = InlineKeyboardMarkup()
     for button_row in buttons:
         inline_markup.add(*button_row)
     return inline_markup
 
 
-def recipe_details_markup(recipe: RecipeWithId) -> dict:
+def recipe_details_markup(recipe: RecipeWithId) -> InlineKeyboardMarkup:
+    """Recipe details telegram bot keyboard markup.
+
+    Args:
+        recipe (RecipeWithId): recipe.
+
+    Returns:
+        InlineKeyboardMarkup: recipe details markup.
+    """
     buttons = []
     id_data = {'id': recipe.id}
     if recipe.is_used:
@@ -55,7 +71,14 @@ def recipe_details_markup(recipe: RecipeWithId) -> dict:
     return markup
 
 
-def recipes_list_inline_keyboard_markup(recipes_list: list[RecipeWithId]) -> dict:
+def recipes_list_inline_keyboard_markup(recipes_list: list[RecipeWithId]) -> InlineKeyboardMarkup:
+    """List of recipes telegram bot keyboard markup.
+    Args:
+        recipes_list (list[RecipeWithId]): list of recipes.
+
+    Returns:
+        InlineKeyboardMarkup: markup with list of recipes.
+    """
     buttons = []
     for current_recipe in recipes_list:
         display_is_used_recipe = '\U0001F373' if current_recipe.is_used else ''

@@ -8,13 +8,13 @@ from pydantic import BaseModel, ValidationError
 
 class ActionCallbackData(BaseModel):
     """
-    Действие, которое выполняет InlineKeyboard
+    The action that performce InlineKeyboard.
     """
     action: str
 
 
 class RecipeIdCallbackData(BaseModel):
-    """Id рецепта, над которым нужно совершить действие."""
+    """ID of the recipe to perform the action on."""
     id: ObjectId
 
     class Config:
@@ -44,14 +44,14 @@ def is_valid_schema_for_callback(
     schema: Union[ActionCallbackData, RecipeIdCallbackData]
 
 ) -> bool:
-    """Проверяет, подходит ли json raw_data к схеме schema
+    """Check whether callback query matched to schema.
 
     Args:
-        raw_data (str): json с колбэком.
-        schema (CallbackData): Одна из схем CallbackData
+        callback (CallbackQuery): telegram callback query.
+        schema (ActionCallbackData | RecipeIdCallbackData): one of the shemes
 
     Returns:
-        bool: Если json образован от schema - возвращает True. Иначе False.
+        bool: True if callback is formed by schema. Otherwise False.
     """
     raw_data = callback.data
     try:

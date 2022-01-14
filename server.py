@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 
 from app import db
-from app.callback_data_shema import (DeleteRecipeCallbackData,
+from app.callback_data_schema import (DeleteRecipeCallbackData,
                                      RecipeDetailsCallbackData,
                                      UnuseRecipeCallbackData,
                                      UseRecipeCallbackData, is_valid_schema_for_callback)
@@ -22,6 +22,7 @@ dp = Dispatcher(bot, storage=storage)
 
 
 class AddNewRecipeStates(StatesGroup):
+    """Finite state machine for recipe addition processing"""
     recipe_name = State()
 
 

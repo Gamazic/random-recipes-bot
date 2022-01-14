@@ -1,11 +1,8 @@
-"""Кастомные исключения, генерируемые приложением"""
-
-
 class UserHasNoRecipesError(Exception):
-    """В базе данных отсутсвуют рецепты для пользователя"""
+    """There is no recipes of user in DB"""
     pass
 
 
 class UserHasNoSelectedRecipeError(Exception):
-    """В базе данных отсутсвует конкретный рецепт для пользователя"""
+    """There is no selected recipe of user in DB"""
     pass

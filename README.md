@@ -31,7 +31,7 @@ Preview:
 - [X] Async mongo
 
 ## BETA 3: final refactoring
-- [ ] Documentation
+- [X] Documentation
 - [X] Naming
 - [ ] Tests
 - [ ] Logging

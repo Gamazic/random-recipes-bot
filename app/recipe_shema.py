@@ -5,13 +5,16 @@ from pydantic import BaseModel, Field
 
 class Recipe(BaseModel):
     """
-    Класс рецепта. Состоит из полей с индексом name и флагом использования.
+    Recipe. Consists of the name and usage flag fields.
     """
     name: str
     is_used: bool = False
 
 
 class RecipeWithId(Recipe):
+    """
+    Recipe with MongoDB index ID.
+    """
     id: ObjectId = Field(alias='_id')
 
     class Config:
