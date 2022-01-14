@@ -6,6 +6,7 @@ Preview:
 * `.env` file
 * `poetry`
 
+`Good README comming soon.`
 
 # Roadmap
 
