@@ -1,6 +1,6 @@
 from aiogram.types import ParseMode
 
-from app.gui.markups import recipe_details_markup
+from app.keyboards.markups import recipe_details_markup
 from app.recipe_shema import RecipeWithId
 
 

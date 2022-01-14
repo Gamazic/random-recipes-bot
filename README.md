@@ -32,13 +32,14 @@ Preview:
 
 ## BETA 3: final refactoring
 - [ ] Documentation
-- [ ] Naming
+- [X] Naming
 - [ ] Tests
 - [ ] Logging
 
 ## REALISE 1:
 - [ ] Welcome message
 - [ ] Hosting
+- [ ] Webhook instead polling
 
 # FEATURES:
 - [X] Docker

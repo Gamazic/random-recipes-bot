@@ -1,14 +1,20 @@
+from typing import Union
+
+from aiogram.types.callback_query import CallbackQuery
 from bson import json_util
 from bson.objectid import ObjectId
 from pydantic import BaseModel, ValidationError
-from aiogram.types.callback_query import CallbackQuery
 
 
-class CallbackData(BaseModel):
+class ActionCallbackData(BaseModel):
+    """
+    Действие, которое выполняет InlineKeyboard
+    """
     action: str
 
 
 class RecipeIdCallbackData(BaseModel):
+    """Id рецепта, над которым нужно совершить действие."""
     id: ObjectId
 
     class Config:
@@ -17,23 +23,27 @@ class RecipeIdCallbackData(BaseModel):
         json_loads = json_util.loads
 
 
-class RecipeDetailsCallbackData(CallbackData, RecipeIdCallbackData):
+class RecipeDetailsCallbackData(ActionCallbackData, RecipeIdCallbackData):
     action: str = 'detail'
 
 
-class UnuseRecipeCallbackData(CallbackData, RecipeIdCallbackData):
+class UnuseRecipeCallbackData(ActionCallbackData, RecipeIdCallbackData):
     action: str = 'unuse'
 
 
-class UseRecipeCallbackData(CallbackData, RecipeIdCallbackData):
+class UseRecipeCallbackData(ActionCallbackData, RecipeIdCallbackData):
     action: str = 'use'
 
 
-class DeleteRecipeCallbackData(CallbackData, RecipeIdCallbackData):
+class DeleteRecipeCallbackData(ActionCallbackData, RecipeIdCallbackData):
     action: str = 'delete'
 
 
-def is_valid_schema(callback: CallbackQuery, schema: CallbackData) -> bool:
+def is_valid_schema_for_callback(
+    callback: CallbackQuery,
+    schema: Union[ActionCallbackData, RecipeIdCallbackData]
+
+) -> bool:
     """Проверяет, подходит ли json raw_data к схеме schema
 
     Args:

@@ -2,17 +2,16 @@ import os
 import random
 
 from bson.objectid import ObjectId
-from dotenv import load_dotenv
 from motor.motor_asyncio import (AsyncIOMotorClient, AsyncIOMotorCollection,
                                  AsyncIOMotorDatabase)
 from pymongo.collection import ReturnDocument
 
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.recipe_shema import Recipe, RecipeWithId
+from app.constants import MAXIMUM_COUNT_OF_RETURNED_RECIPES
 
 
 def _connect_to_db() -> AsyncIOMotorDatabase:
-    load_dotenv()
     db_user = os.environ['MONGO_USER']
     db_password = os.environ['MONGO_PASSWORD']
     host = os.environ['MONGO_HOST']
@@ -45,13 +44,20 @@ async def add_recipe_by_name(user_id: int, recipe_name: str) -> None:
     await user_collection.insert_one(recipe.dict())
 
 
-async def _list_user_recipes_by_filter(user_id: int, filter: dict = {}) -> list[RecipeWithId]:
+async def _list_user_recipes_by_filter(
+    user_id: int,
+    filter: dict = {},
+    count: int = MAXIMUM_COUNT_OF_RETURNED_RECIPES
+) -> list[RecipeWithId]:
     user_collection = _dispatch_user_id(user_id)
-    cursor = await user_collection.find(filter=filter).to_list(100) # TODO: remove magic constant
+    cursor = await user_collection.find(filter=filter).to_list(count)
     return [RecipeWithId(**document) for document in cursor]
 
 
-async def list_user_recipes(user_id: int) -> list[RecipeWithId]:
+async def list_user_recipes(
+    user_id: int,
+    count: int = MAXIMUM_COUNT_OF_RETURNED_RECIPES
+) -> list[RecipeWithId]:
     """
     Args:
         user_id (int): ID of user.
@@ -59,7 +65,7 @@ async def list_user_recipes(user_id: int) -> list[RecipeWithId]:
     Returns:
         list[RecipeWithId]: list of user recipes from DB.
     """
-    return await _list_user_recipes_by_filter(user_id)
+    return await _list_user_recipes_by_filter(user_id, count=count)
 
 
 async def find_recipe_by_id(user_id: int, recipe_id: ObjectId) -> RecipeWithId:
@@ -104,7 +110,8 @@ async def unuse_all_recipes(user_id: int) -> None:
     user_collection = _dispatch_user_id(user_id)
     as_unused_update = {'$set': {'is_used': False}}
     all_recipes_filter = {}
-    await user_collection.update_many(filter=all_recipes_filter, update=as_unused_update)
+    if (await does_user_have_used_recipes(user_id)):
+        await user_collection.update_many(filter=all_recipes_filter, update=as_unused_update)
 
 
 async def take_recipe_by_id(user_id: int, recipe_id: ObjectId) -> RecipeWithId:

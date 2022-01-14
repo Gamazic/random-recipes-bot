@@ -1,13 +1,17 @@
-from app.callback_shema import (CallbackData, DeleteRecipeCallbackData,
-                                RecipeDetailsCallbackData,
-                                UnuseRecipeCallbackData, UseRecipeCallbackData)
+from aiogram.types.inline_keyboard import (InlineKeyboardButton,
+                                           InlineKeyboardMarkup)
+
+from app.callback_data_shema import (ActionCallbackData,
+                                     DeleteRecipeCallbackData,
+                                     RecipeDetailsCallbackData,
+                                     UnuseRecipeCallbackData,
+                                     UseRecipeCallbackData)
 from app.recipe_shema import RecipeWithId
-from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def create_inline_keyboard_button(
     button_text: str,
-    callback_class: CallbackData,
+    callback_class: ActionCallbackData,
     callback_data: dict = {}
 ) -> InlineKeyboardMarkup:
     """Создает inline кнопку бота. В callback записывается json,
