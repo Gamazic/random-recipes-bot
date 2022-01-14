@@ -10,6 +10,7 @@ flake8 = "^4.0.1"
 pydantic = "^1.8.2"
 aiogram = "^2.18"
 motor = "^2.5.1"
+loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
 

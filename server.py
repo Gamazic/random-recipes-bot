@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
+from loguru import logger
 
 from app import db
 from app.callback_data_schema import (DeleteRecipeCallbackData,
@@ -15,6 +16,8 @@ from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.keyboards.layouts import create_recipe_details_layout
 from app.keyboards.markups import recipes_list_inline_keyboard_markup
 
+
+logger.add("logs/recipe_bot.log", rotation="5 MB",  backtrace=True, diagnose=True)
 
 bot = Bot(token=os.environ['TG_TOKEN'])
 storage = MemoryStorage()
@@ -61,6 +64,7 @@ async def take_random_recipe(message):
     try:
         recipe = await db.take_random_recipe(message.chat.id)
     except UserHasNoRecipesError:
+        logger.exception(f"user {message.chat.id} called /random without recipes")
         await message.answer(text='Список рецептов пуст. Чтобы добавить рецепт отправьте "/add"')
         return
     text = 'Рецепт:\n' \
@@ -89,6 +93,10 @@ async def show_recipe_details(callback_query):
         recipe = await db.find_recipe_by_id(callback_query.from_user.id,
                                             recipe_callback_data.id)
     except UserHasNoSelectedRecipeError:
+        logger.exception(
+            f"user {callback_query.from_user.id} clicked on already"
+            "deleted recipe with id {recipe_callback_data.id}"
+            )
         await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
         await callback_query.message.delete()
         return
@@ -106,6 +114,10 @@ async def use_recipe(callback_query):
     try:
         recipe = await db.take_recipe_by_id(callback_query.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
+        logger.exception(
+            f"user {callback_query.from_user.id} clicked on already"
+            "deleted recipe with id {recipe_callback_data.id}"
+            )
         await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
         await callback_query.message.delete()
         return
@@ -124,6 +136,10 @@ async def unuse_recipe(callback_query):
     try:
         recipe = await db.unuse_and_find_recipe_by_id(callback_query.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
+        logger.exception(
+            f"user {callback_query.from_user.id} clicked on already"
+            "deleted recipe with id {recipe_callback_data.id}"
+            )
         await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
         await callback_query.message.delete()
         return
@@ -148,3 +164,4 @@ async def delete_recipe(callback_query):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
+    logger.info("Bot started with polling.")
