@@ -74,8 +74,8 @@ async def unuse_all_recipes(message):
 
 
 @dp.callback_query_handler(partial(is_valid_schema_for_callback, schema=RecipeDetailsCallbackData))
-async def show_recipe_details(call):
-    recipe_callback_data = RecipeDetailsCallbackData.parse_raw(call.data)
+async def show_recipe_details(callback_query):
+    recipe_callback_data = RecipeDetailsCallbackData.parse_raw(callback_query.data)
     # TODO: (1) (this is how identical fragments are marked)
     # I don't know how to abstract this block.
     # I don't want to check if recipe is exists each time.
@@ -85,63 +85,63 @@ async def show_recipe_details(call):
     # If you know good resolution for this situation, please
     # write an issue or do a pull request.
     try:
-        recipe = await db.find_recipe_by_id(call.from_user.id,
+        recipe = await db.find_recipe_by_id(callback_query.from_user.id,
                                             recipe_callback_data.id)
     except UserHasNoSelectedRecipeError:
-        await call.answer(text='Ошибка! Рецепт отсутствует.')
-        await call.message.delete()
+        await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
+        await callback_query.message.delete()
         return
     recipe_details_layout = create_recipe_details_layout(recipe)
-    await bot.edit_message_text(chat_id=call.from_user.id,
-                                message_id=call.message.message_id,
+    await bot.edit_message_text(chat_id=callback_query.from_user.id,
+                                message_id=callback_query.message.message_id,
                                 **recipe_details_layout)
 
 
 @dp.callback_query_handler(partial(is_valid_schema_for_callback, schema=UseRecipeCallbackData))
-async def use_recipe(call):
-    recipe_callback_data = UseRecipeCallbackData.parse_raw(call.data)
+async def use_recipe(callback_query):
+    recipe_callback_data = UseRecipeCallbackData.parse_raw(callback_query.data)
     recipe_id = recipe_callback_data.id
     # TODO: (1)
     try:
-        recipe = await db.take_recipe_by_id(call.from_user.id, recipe_id)
+        recipe = await db.take_recipe_by_id(callback_query.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
-        await call.answer(text='Ошибка! Рецепт отсутствует.')
-        await call.message.delete()
+        await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
+        await callback_query.message.delete()
         return
     recipe_details_layout = create_recipe_details_layout(recipe)
-    await bot.edit_message_text(chat_id=call.from_user.id,
-                                message_id=call.message.message_id,
-                                inline_message_id=call.inline_message_id,
+    await bot.edit_message_text(chat_id=callback_query.from_user.id,
+                                message_id=callback_query.message.message_id,
+                                inline_message_id=callback_query.inline_message_id,
                                 **recipe_details_layout)
 
 
 @dp.callback_query_handler(partial(is_valid_schema_for_callback, schema=UnuseRecipeCallbackData))
-async def unuse_recipe(call):
-    recipe_callback_data = UnuseRecipeCallbackData.parse_raw(call.data)
+async def unuse_recipe(callback_query):
+    recipe_callback_data = UnuseRecipeCallbackData.parse_raw(callback_query.data)
     recipe_id = recipe_callback_data.id
     # TODO: (1)
     try:
-        recipe = await db.unuse_and_find_recipe_by_id(call.from_user.id, recipe_id)
+        recipe = await db.unuse_and_find_recipe_by_id(callback_query.from_user.id, recipe_id)
     except UserHasNoSelectedRecipeError:
-        await call.answer(text='Ошибка! Рецепт отсутствует.')
-        await call.message.delete()
+        await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
+        await callback_query.message.delete()
         return
     recipe_details_layout = create_recipe_details_layout(recipe)
-    await bot.edit_message_text(chat_id=call.from_user.id,
-                                message_id=call.message.message_id,
-                                inline_message_id=call.inline_message_id,
+    await bot.edit_message_text(chat_id=callback_query.from_user.id,
+                                message_id=callback_query.message.message_id,
+                                inline_message_id=callback_query.inline_message_id,
                                 **recipe_details_layout)
 
 
 @dp.callback_query_handler(partial(is_valid_schema_for_callback, schema=DeleteRecipeCallbackData))
-async def delete_recipe(call):
-    recipe_callback_data = DeleteRecipeCallbackData.parse_raw(call.data)
-    await db.remove_recipe_by_id(call.from_user.id, recipe_callback_data.id)
+async def delete_recipe(callback_query):
+    recipe_callback_data = DeleteRecipeCallbackData.parse_raw(callback_query.data)
+    await db.remove_recipe_by_id(callback_query.from_user.id, recipe_callback_data.id)
     answer = 'Рецепт удален.'
     await bot.edit_message_text(text=answer,
-                                chat_id=call.from_user.id,
-                                message_id=call.message.message_id,
-                                inline_message_id=call.inline_message_id,
+                                chat_id=callback_query.from_user.id,
+                                message_id=callback_query.message.message_id,
+                                inline_message_id=callback_query.inline_message_id,
                                 parse_mode=ParseMode.MARKDOWN)
 
 
