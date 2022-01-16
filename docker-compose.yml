@@ -21,7 +21,7 @@ services:
     env_file: 
       - .env
     volumes:
-      - logs:/home/logs
+      - ./logs:/home/logs
     depends_on:
       - mongo
 
