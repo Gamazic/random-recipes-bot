@@ -66,10 +66,10 @@ async def take_random_recipe(message):
     except UserHasNoRecipesError:
         logger.exception(f"user {message.chat.id} called /random without recipes")
         await message.answer(text='Список рецептов пуст. Чтобы добавить рецепт отправьте "/add"')
-        return
-    text = 'Рецепт:\n' \
-           f'*{recipe.name}*'
-    await message.answer(text=text, parse_mode=ParseMode.MARKDOWN)
+    else:
+        text = 'Рецепт:\n' \
+            f'*{recipe.name}*'
+        await message.answer(text=text, parse_mode=ParseMode.MARKDOWN)
 
 
 @dp.message_handler(commands=['unuse_all'])
@@ -99,11 +99,11 @@ async def show_recipe_details(callback_query):
             )
         await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
         await callback_query.message.delete()
-        return
-    recipe_details_layout = create_recipe_details_layout(recipe)
-    await bot.edit_message_text(chat_id=callback_query.from_user.id,
-                                message_id=callback_query.message.message_id,
-                                **recipe_details_layout)
+    else:
+        recipe_details_layout = create_recipe_details_layout(recipe)
+        await bot.edit_message_text(chat_id=callback_query.from_user.id,
+                                    message_id=callback_query.message.message_id,
+                                    **recipe_details_layout)
 
 
 @dp.callback_query_handler(partial(is_valid_schema_for_callback, schema=UseRecipeCallbackData))
@@ -120,12 +120,12 @@ async def use_recipe(callback_query):
             )
         await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
         await callback_query.message.delete()
-        return
-    recipe_details_layout = create_recipe_details_layout(recipe)
-    await bot.edit_message_text(chat_id=callback_query.from_user.id,
-                                message_id=callback_query.message.message_id,
-                                inline_message_id=callback_query.inline_message_id,
-                                **recipe_details_layout)
+    else:
+        recipe_details_layout = create_recipe_details_layout(recipe)
+        await bot.edit_message_text(chat_id=callback_query.from_user.id,
+                                    message_id=callback_query.message.message_id,
+                                    inline_message_id=callback_query.inline_message_id,
+                                    **recipe_details_layout)
 
 
 @dp.callback_query_handler(partial(is_valid_schema_for_callback, schema=UnuseRecipeCallbackData))
@@ -142,12 +142,12 @@ async def unuse_recipe(callback_query):
             )
         await callback_query.answer(text='Ошибка! Рецепт отсутствует.')
         await callback_query.message.delete()
-        return
-    recipe_details_layout = create_recipe_details_layout(recipe)
-    await bot.edit_message_text(chat_id=callback_query.from_user.id,
-                                message_id=callback_query.message.message_id,
-                                inline_message_id=callback_query.inline_message_id,
-                                **recipe_details_layout)
+    else:
+        recipe_details_layout = create_recipe_details_layout(recipe)
+        await bot.edit_message_text(chat_id=callback_query.from_user.id,
+                                    message_id=callback_query.message.message_id,
+                                    inline_message_id=callback_query.inline_message_id,
+                                    **recipe_details_layout)
 
 
 @dp.callback_query_handler(partial(is_valid_schema_for_callback, schema=DeleteRecipeCallbackData))
