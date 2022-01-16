@@ -44,8 +44,8 @@ Preview:
 
 # FEATURES:
 - [X] Docker
-- [ ] Change names of commands:
-    - [ ] `list` not just a list, but also actions on recipes.
+- [X] Change names of commands:
+    - [X] `list` not just a list, but also actions on recipes.
 - [ ] recipes pagination
 - [ ] The ability to share a recipes
     - [ ] Random
