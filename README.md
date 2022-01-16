@@ -34,7 +34,7 @@ Preview:
 ## BETA 3: final refactoring
 - [X] Documentation
 - [X] Naming
-- [ ] Tests
+- [X] Tests
 - [X] Logging
 
 ## REALISE 1:

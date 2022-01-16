@@ -6,13 +6,16 @@ authors = ["NABurov <nikita.nov.ru@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-flake8 = "^4.0.1"
 pydantic = "^1.8.2"
 aiogram = "^2.18"
 motor = "^2.5.1"
 loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+flake8 = "^4.0.1"
+python-dotenv = "^0.19.2"
+pytest-asyncio = "^0.17.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
