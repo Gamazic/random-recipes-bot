@@ -31,7 +31,13 @@ class AddNewRecipeStates(StatesGroup):
 
 @dp.message_handler(commands=['start', 'help'])
 async def start(message):
-    welcome_message = 'Привет! Инструкция пока не готова. Но бот работоспособный.'
+    welcome_message = 'Привет!\n' \
+                      'Бот работает как мешок, в который можно поместить записки,' \
+                      ' перемешать и вытащить случайную.\n' \
+                      'Для себя я использую бота как мешок с блюдами. Когда' \
+                      ' не могу выбрать, что поесть - беру наугад.\n' \
+                      'Значок \U0001F373 означает, что обьект уже использован.\n' \
+                      'С проблемами и пожалениями обращайтесь к @kekusmekus.'
     await message.answer(welcome_message)
 
 

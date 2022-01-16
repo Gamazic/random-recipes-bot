@@ -28,7 +28,7 @@
 - [X] Logging
 
 ## REALISE 1:
-- [ ] Welcome message
+- [X] Welcome message
 - [ ] Hosting
 - [ ] Webhook instead polling
 
