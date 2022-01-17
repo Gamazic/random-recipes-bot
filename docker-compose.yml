@@ -22,6 +22,8 @@ services:
       - .env
     volumes:
       - ./logs:/app/logs
+    security_opt:
+      - no-new-privileges:true
     command: ["python", "server.py"]
     depends_on:
       - mongo

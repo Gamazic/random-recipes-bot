@@ -23,6 +23,11 @@ FROM python:3.9.7-slim-bullseye
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache /wheels/*
 
+RUN addgroup --gid 1001 --system app && \
+    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group app
+
+USER app
+
 WORKDIR /app
 COPY . .
 VOLUME ["./logs"]
