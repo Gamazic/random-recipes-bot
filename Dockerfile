@@ -1,20 +1,28 @@
-FROM python:3.9
+FROM python:3.9.7-slim-bullseye as builder
 
-WORKDIR /home
+WORKDIR /app
 
-# Install Poetry
-RUN set +x \
- && apt update \
- && apt install -y curl \
- && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python \
- && cd /usr/local/bin \
- && ln -s /opt/poetry/bin/poetry \
- && poetry config virtualenvs.create false \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \ 
+        curl \
+        gcc \
+        && apt-get autoremove -yqq --purge \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
 
-# copy code & install dependencies
-COPY . /home/
-RUN poetry install -n --no-dev
-VOLUME ["/home/logs"]
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+ENV PATH="${PATH}:/root/.poetry/bin"
 
-ENTRYPOINT ["python", "server.py"]
+COPY ./poetry.lock ./pyproject.toml ./
+
+RUN poetry export --output requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirements.txt
+
+
+FROM python:3.9.7-slim-bullseye
+
+COPY --from=builder /wheels /wheels
+RUN pip install --no-cache /wheels/*
+
+WORKDIR /app
+COPY . .
+VOLUME ["./logs"]

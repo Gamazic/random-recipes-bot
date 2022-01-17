@@ -2,3 +2,7 @@ mongodb/
 env/
 .vscode/
 __pycache__/
+tests/
+*.pyc
+.pytest_cache/
+tg_app_screenshots/
