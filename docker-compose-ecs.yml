@@ -16,7 +16,7 @@ services:
     restart: on-failure
     volumes:
       - ./logs:/app/logs
-    command: ["python", "server.py"]
+    # command: ["python", "server.py"]
     depends_on:
       - mongo
     links:
