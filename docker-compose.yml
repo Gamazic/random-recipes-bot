@@ -17,7 +17,7 @@ services:
   bot:
     container_name: recipes-bot
     # build: ./
-    image: ${AWS_ECR_IMAGE}:latest
+    image: ${IMAGE_URI}:latest
     restart: on-failure
     env_file: 
       - .env
