@@ -12,7 +12,7 @@ services:
       - 27017:27017
 
   bot:
-    image: ${IMAGE_URI}:latest
+    image: ${IMAGE_URI}
     restart: on-failure
     volumes:
       - ./logs:/app/logs
