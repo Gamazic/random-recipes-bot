@@ -29,6 +29,7 @@
 
 ## REALISE 1:
 - [X] Welcome message
+- [ ] GitHub action
 - [ ] Hosting
 - [ ] Webhook instead polling
 
