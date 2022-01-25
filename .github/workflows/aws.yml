@@ -75,6 +75,13 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
+    - name: Setup ECS CLI
+      run: |-
+        mkdir -p "$HOME/tools/ecs-cli"
+        curl -Lo "$HOME/tools/ecs-cli/ecs-cli" https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+        chmod +x "$HOME/tools/ecs-cli/ecs-cli"
+        echo "$HOME/tools/ecs-cli" >> $GITHUB_PATH
+
     - name: Deploy Amazon ECS
       id: deploy
       env:
