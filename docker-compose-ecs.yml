@@ -11,16 +11,16 @@ services:
     ports: 
       - 27017:27017
 
-  # bot:
-  #   image: ${IMAGE_URI}:latest
-  #   restart: on-failure
-  #   volumes:
-  #     - ./logs:/app/logs
-  #   command: ["python", "server.py"]
-  #   depends_on:
-  #     - mongo
-  #   links:
-  #     - mongo
+  bot:
+    image: ${IMAGE_URI}:latest
+    restart: on-failure
+    volumes:
+      - ./logs:/app/logs
+    command: ["python", "server.py"]
+    depends_on:
+      - mongo
+    links:
+      - mongo
 
 volumes:
   mongodb:
