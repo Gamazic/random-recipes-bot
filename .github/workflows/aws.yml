@@ -85,7 +85,7 @@ jobs:
 
     - name: Deploy Amazon ECS
       id: deploy
-      env:
+      # env:
         # IMAGE_URI: ${{ steps.build-image.outputs.image }} # for docker-compose
       run: |
         ecs-cli compose --project-name ${{ env.CONTAINER_NAME }} --file ${{ env.ECS_COMPOSE_FILE }} \
