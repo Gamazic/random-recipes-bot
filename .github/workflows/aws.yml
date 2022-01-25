@@ -40,6 +40,7 @@ env:
   ECS_PROFILE: "recipes-bot"
   CONTAINER_NAME: "bot:${{ github.sha }}"           # set this to the name of the container in the
                                                # containerDefinitions section of your task definition
+  ECS_COMPOSE_FILE: "docker-compose-ecs.yml"
 
 jobs:
   deploy:
@@ -87,7 +88,7 @@ jobs:
       env:
         IMAGE_URI: ${{ steps.build-image.outputs.image }} # for docker-compose
       run: |
-        ecs-cli compose --project-name ${{ env.CONTAINER_NAME }} --file docker-compose.yml \
+        ecs-cli compose --project-name ${{ env.CONTAINER_NAME }} --file ${{ env.ECS_COMPOSE_FILE }} \
         service up  \
         --region {{ env.AWS_REGION }} --ecs-profile {{ env.ECS_PROFILE }} --cluster-config {{ env.ECS_PROFILE }}
       

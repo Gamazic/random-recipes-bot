@@ -5,10 +5,8 @@ services:
     container_name: mongodb
     image: bitnami/mongodb
     environment:
-      MONGODB_ROOT_USERNAME: $MONGO_USER
-      MONGODB_ROOT_PASSWORD: $MONGO_PASSWORD
-    env_file:
-      - .env
+      MONGODB_ROOT_USERNAME: test
+      MONGODB_ROOT_PASSWORD: test
     volumes:
       - mongodb:/bitnami/mongodb
     ports: 
@@ -16,10 +14,9 @@ services:
 
   bot:
     container_name: recipes-bot
-    build: ./
+    # build: ./
+    image: ${IMAGE_URI}:latest
     restart: on-failure
-    env_file: 
-      - .env
     volumes:
       - ./logs:/app/logs
     command: ["python", "server.py"]
