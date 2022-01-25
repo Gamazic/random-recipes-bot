@@ -2,7 +2,6 @@ version: '3'
 
 services:
   mongo:
-    container_name: mongodb
     image: bitnami/mongodb
     environment:
       MONGODB_ROOT_USERNAME: test
@@ -12,18 +11,16 @@ services:
     ports: 
       - 27017:27017
 
-  bot:
-    container_name: recipes-bot
-    # build: ./
-    image: ${IMAGE_URI}:latest
-    restart: on-failure
-    volumes:
-      - ./logs:/app/logs
-    command: ["python", "server.py"]
-    depends_on:
-      - mongo
-    links:
-      - mongo
+  # bot:
+  #   image: ${IMAGE_URI}:latest
+  #   restart: on-failure
+  #   volumes:
+  #     - ./logs:/app/logs
+  #   command: ["python", "server.py"]
+  #   depends_on:
+  #     - mongo
+  #   links:
+  #     - mongo
 
 volumes:
   mongodb:
