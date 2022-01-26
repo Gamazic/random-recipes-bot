@@ -17,6 +17,8 @@ services:
     volumes:
       - ./logs:/app/logs
     command: ["python", "server.py"]
+    env_file: 
+      - .env
     depends_on:
       - mongo
     links:
