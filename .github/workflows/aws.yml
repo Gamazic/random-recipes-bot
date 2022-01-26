@@ -28,6 +28,7 @@ jobs:
       uses: SpicyPizza/create-envfile@v1
       with:
         envkey_TG_TOKEN: ${{ secrets.TG_TOKEN }}
+    - name: Check .env is exists
       run:
         ls -la
 
