@@ -30,6 +30,8 @@ jobs:
         envkey_TG_TOKEN: ${{ secrets.TG_TOKEN }}
         envkey_MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
         envkey_MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+        envkey_MONGO_USER: ${{ secrets.MONGO_USER }}
+        envkey_MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
         envkey_MONGO_RECIPE_DB: "recipe"
         envkey_MONGO_HOST: "mongo"
         envkey_MONGO_PORT: "27017"

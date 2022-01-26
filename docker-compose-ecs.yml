@@ -6,6 +6,8 @@ services:
     environment:
       MONGODB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
       MONGODB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    env_file: 
+      - .env
     volumes:
       - mongodb:/bitnami/mongodb
     ports: 
