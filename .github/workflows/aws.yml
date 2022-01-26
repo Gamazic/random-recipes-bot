@@ -66,6 +66,8 @@ jobs:
       id: deploy
       env:
         IMAGE_URI: ${{ steps.build-image.outputs.image }}
+        MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
+        MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
       run: |
         ecs-cli compose --project-name ${{ env.CONTAINER_NAME }} --file ${{ env.ECS_COMPOSE_FILE }} \
         service up  \

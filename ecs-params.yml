@@ -2,4 +2,4 @@ version: 1
 task_definition:
   ecs_network_mode: bridge
   task_size:
-    mem_limit: "768"
+    mem_limit: "900"

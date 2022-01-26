@@ -4,8 +4,8 @@ services:
   mongo:
     image: bitnami/mongodb
     environment:
-      MONGODB_ROOT_USERNAME: test
-      MONGODB_ROOT_PASSWORD: test
+      MONGODB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGODB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     volumes:
       - mongodb:/bitnami/mongodb
     ports: 
@@ -16,7 +16,7 @@ services:
     restart: on-failure
     volumes:
       - ./logs:/app/logs
-    # command: ["python", "server.py"]
+    command: ["python", "server.py"]
     depends_on:
       - mongo
     links:
