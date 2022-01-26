@@ -35,6 +35,11 @@ jobs:
         envkey_MONGO_RECIPE_DB: "recipe"
         envkey_MONGO_HOST: "mongo"
         envkey_MONGO_PORT: "27017"
+        envkey_WEBHOOK_HOST: ${{ secrets.WEBHOOK_HOST }}
+        envkey_WEBHOOK_PORT: 8443
+        envkey_WEBHOOK_PATH: ${{ secrets.WEBHOOK_PATH }}
+        envkey_WEBAPP_HOST: ${{ secrets.WEBAPP_HOST }}
+        envkey_WEBAPP_PORT: 3001
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1

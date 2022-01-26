@@ -22,6 +22,8 @@ services:
     command: ["python", "server.py"]
     env_file: 
       - .env
+    ports:
+      - 8443:3001
     depends_on:
       - mongo
     links:

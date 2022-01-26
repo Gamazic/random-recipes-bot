@@ -1,4 +1,3 @@
-import os
 from functools import partial
 
 from aiogram import Bot, Dispatcher, executor
@@ -11,7 +10,10 @@ from app import db
 from app.callback_data_schema import (DeleteRecipeCallbackData,
                                       RecipeDetailsCallbackData,
                                       UnuseRecipeCallbackData,
-                                      UseRecipeCallbackData, is_valid_schema_for_callback)
+                                      UseRecipeCallbackData,
+                                      is_valid_schema_for_callback)
+from app.data.config import (TG_TOKEN, WEBAPP_HOST, WEBAPP_PORT,
+                             WEBHOOK_PATH, WEBHOOK_URL)
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.keyboards.layouts import create_recipe_details_layout
 from app.keyboards.markups import recipes_list_inline_keyboard_markup
@@ -19,7 +21,7 @@ from app.keyboards.markups import recipes_list_inline_keyboard_markup
 
 logger.add("logs/recipe_bot.log", rotation="5 MB")
 
-bot = Bot(token=os.environ['TG_TOKEN'])
+bot = Bot(TG_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -168,6 +170,14 @@ async def delete_recipe(callback_query):
                                 parse_mode=ParseMode.MARKDOWN)
 
 
+async def on_startup(dp):
+    await bot.set_webhook(WEBHOOK_URL)
+
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
-    logger.info("Bot started with polling.")
+    executor.start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH, on_startup=on_startup,
+                           skip_updates=True, host=WEBAPP_HOST, port=WEBAPP_PORT)
+
+# if __name__ == '__main__':
+#     executor.start_polling(dp, skip_updates=True)
+#     logger.info("Bot started with polling.")
