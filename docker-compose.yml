@@ -1,22 +1,29 @@
 version: '3'
 
 services:
+  fix-mongodb-permissions:
+    image: 'bitnami/mongodb:latest'
+    user: root
+    command: chown -R 1001:1001 /bitnami
+    volumes:
+      - ./mongodata:/bitnami/mongodb
+
   mongo:
     container_name: mongodb
     image: bitnami/mongodb
     environment:
-      MONGODB_ROOT_USERNAME: $MONGO_USER
-      MONGODB_ROOT_PASSWORD: $MONGO_PASSWORD
+      MONGODB_ROOT_USERNAME: $MONGO_ROOT_USERNAME
+      MONGODB_ROOT_PASSWORD: $MONGO_ROOT_PASSWORD
     env_file:
       - .env
     volumes:
-      - mongodb:/bitnami/mongodb
+      - ./mongodata:/bitnami/mongodb
     ports: 
       - 27017:27017
 
   bot:
     container_name: recipes-bot
-    build: ./
+    build: .
     restart: on-failure
     env_file: 
       - .env
@@ -27,6 +34,3 @@ services:
       - mongo
     links:
       - mongo
-
-volumes:
-  mongodb:
