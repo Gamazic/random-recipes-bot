@@ -2,7 +2,7 @@ version: '3'
 
 services:
   fix-mongodb-permissions:
-    image: 'bitnami/mongodb:latest'
+    image: bitnami/mongodb
     user: root
     command: chown -R 1001:1001 /bitnami
     volumes:
