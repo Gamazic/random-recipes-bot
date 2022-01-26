@@ -17,7 +17,7 @@ from app.keyboards.layouts import create_recipe_details_layout
 from app.keyboards.markups import recipes_list_inline_keyboard_markup
 
 
-logger.add("logs/recipe_bot.log", rotation="5 MB", backtrace=True)
+# logger.add("logs/recipe_bot.log", rotation="5 MB", backtrace=True)
 
 bot = Bot(token=os.environ['TG_TOKEN'])
 storage = MemoryStorage()
