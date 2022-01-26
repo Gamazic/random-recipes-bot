@@ -1,14 +1,6 @@
 version: '3'
 
 services:
-  # fix-mongodb-permissions:
-  #   image: bitnami/mongodb
-  #   restart: "no"
-  #   user: root
-  #   command: chown -R 1001:1001 /bitnami
-  #   volumes:
-  #     - ./mongodata:/bitnami/mongodb
-
   mongo:
     container_name: mongodb
     image: bitnami/mongodb
