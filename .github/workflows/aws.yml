@@ -27,60 +27,57 @@ jobs:
     - name: Make .env
       uses: SpicyPizza/create-envfile@v1
       with:
-        # envkey_TG_TOKEN: ${{ secrets.TG_TOKEN }}
-        # envkey_MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
-        # envkey_MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+        envkey_TG_TOKEN: ${{ secrets.TG_TOKEN }}
+        envkey_MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
+        envkey_MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
         envkey_MONGO_RECIPE_DB: "recipe"
         envkey_MONGO_HOST: "mongo"
         envkey_MONGO_PORT: "27017"
-    - name: Check .env is exists
-      run:
-        cat .env
 
-    # - name: Configure AWS credentials
-    #   uses: aws-actions/configure-aws-credentials@v1
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: ${{ env.AWS_REGION }}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
-    # - name: Login to Amazon ECR
-    #   id: login-ecr
-    #   uses: aws-actions/amazon-ecr-login@v1
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
 
-    # - name: Build, tag, and push image to Amazon ECR
-    #   id: build-image
-    #   env:
-    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #     IMAGE_TAG: ${{ github.sha }}
-    #   run: |
-    #     # Build a docker container and
-    #     # push it to ECR so that it can
-    #     # be deployed to ECS.
-    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-    #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build a docker container and
+        # push it to ECR so that it can
+        # be deployed to ECS.
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-    # - name: Setup ECS CLI
-    #   run: |-
-    #     mkdir -p "$HOME/tools/ecs-cli"
-    #     curl -Lo "$HOME/tools/ecs-cli/ecs-cli" https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
-    #     chmod +x "$HOME/tools/ecs-cli/ecs-cli"
-    #     echo "$HOME/tools/ecs-cli" >> $GITHUB_PATH
+    - name: Setup ECS CLI
+      run: |-
+        mkdir -p "$HOME/tools/ecs-cli"
+        curl -Lo "$HOME/tools/ecs-cli/ecs-cli" https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+        chmod +x "$HOME/tools/ecs-cli/ecs-cli"
+        echo "$HOME/tools/ecs-cli" >> $GITHUB_PATH
       
-    # - name: Configure EC2 profile
-    #   run: |
-    #     ecs-cli configure profile --profile-name "${{ env.PROFILE_NAME }}" \
-    #     --access-key "${{ secrets.AWS_ACCESS_KEY_ID }}" --secret-key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-    #     ecs-cli configure --cluster "${{ env.CLUSTER_NAME }}" --default-launch-type "${{ env.LAUNCH_TYPE }}" \
-    #     --region "${{ env.AWS_REGION }}" --config-name "${{ env.PROFILE_NAME }}"
+    - name: Configure EC2 profile
+      run: |
+        ecs-cli configure profile --profile-name "${{ env.PROFILE_NAME }}" \
+        --access-key "${{ secrets.AWS_ACCESS_KEY_ID }}" --secret-key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        ecs-cli configure --cluster "${{ env.CLUSTER_NAME }}" --default-launch-type "${{ env.LAUNCH_TYPE }}" \
+        --region "${{ env.AWS_REGION }}" --config-name "${{ env.PROFILE_NAME }}"
 
-    # - name: Deploy Amazon ECS
-    #   id: deploy
-    #   env:
-    #     IMAGE_URI: ${{ steps.build-image.outputs.image }}
+    - name: Deploy Amazon ECS
+      id: deploy
+      env:
+        IMAGE_URI: ${{ steps.build-image.outputs.image }}
 
-    #   run: |
-    #     ecs-cli compose --project-name ${{ env.CONTAINER_NAME }} --file ${{ env.ECS_COMPOSE_FILE }} \
-    #     service up  \
-    #     --region ${{ env.AWS_REGION }} --ecs-profile ${{ env.PROFILE_NAME }} --cluster-config ${{ env.PROFILE_NAME }}
+      run: |
+        ecs-cli compose --project-name ${{ env.CONTAINER_NAME }} --file ${{ env.ECS_COMPOSE_FILE }} \
+        service up  \
+        --region ${{ env.AWS_REGION }} --ecs-profile ${{ env.PROFILE_NAME }} --cluster-config ${{ env.PROFILE_NAME }}
