@@ -5,6 +5,7 @@ from motor.motor_asyncio import (AsyncIOMotorClient,
                                  AsyncIOMotorDatabase)
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from loguru import logger
 
 from app.data.config import TG_TOKEN
 
@@ -37,3 +38,5 @@ db = _connect_to_db()
 bot = Bot(TG_TOKEN, loop=io_loop)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
+
+logger.add("logs/recipe_bot.log", rotation="5 MB")
