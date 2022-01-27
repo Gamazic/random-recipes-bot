@@ -26,6 +26,7 @@ def _connect_to_db() -> AsyncIOMotorDatabase:
 
     connection_string = f'mongodb://{db_user}:{db_password}@{host}:{port}'
     client = AsyncIOMotorClient(connection_string, io_loop=io_loop)
+    client.get_io_loop = asyncio.get_running_loop
     db = client[recipe_db_name]
     return db
 
