@@ -1,4 +1,5 @@
 from functools import partial
+import ssl
 
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -13,7 +14,8 @@ from app.callback_data_schema import (DeleteRecipeCallbackData,
                                       UseRecipeCallbackData,
                                       is_valid_schema_for_callback)
 from app.data.config import (TG_TOKEN, WEBAPP_HOST, WEBAPP_PORT,
-                             WEBHOOK_PATH, WEBHOOK_URL)
+                             WEBHOOK_PATH, WEBHOOK_URL, WEBHOOK_SSL_CERT,
+                             WEBHOOK_SSL_PRIV)
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.keyboards.layouts import create_recipe_details_layout
 from app.keyboards.markups import recipes_list_inline_keyboard_markup
@@ -170,13 +172,25 @@ async def delete_recipe(callback_query):
                                 parse_mode=ParseMode.MARKDOWN)
 
 
-async def on_startup(dp):
-    await bot.set_webhook(WEBHOOK_URL)
+async def on_startup(app):
+    # Get current webhook status
+    webhook = await bot.get_webhook_info()
+
+    # If URL is bad
+    if webhook.url != WEBHOOK_URL:
+        # If URL doesnt match current - remove webhook
+        if not webhook.url:
+            await bot.delete_webhook()
+
+        # Set new URL for webhook
+        await bot.set_webhook(WEBHOOK_URL, certificate=open(WEBHOOK_SSL_CERT, 'rb'))
 
 
 if __name__ == '__main__':
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    context.load_cert_chain(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV)
     executor.start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH, on_startup=on_startup,
-                           skip_updates=True, host=WEBAPP_HOST, port=WEBAPP_PORT)
+                           skip_updates=True, host=WEBAPP_HOST, port=WEBAPP_PORT, ssl_context=context)
 
 # if __name__ == '__main__':
 #     executor.start_polling(dp, skip_updates=True)
