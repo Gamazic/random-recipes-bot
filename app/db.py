@@ -9,28 +9,7 @@ from pymongo.collection import ReturnDocument
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.recipe_shema import Recipe, RecipeWithId
 from app.constants import MAXIMUM_COUNT_OF_RETURNED_RECIPES
-from loader import io_loop
-
-
-def _connect_to_db() -> AsyncIOMotorDatabase:
-    """Connecting to db with recipes.
-
-    Returns:
-        AsyncIOMotorDatabase: Mongo database
-    """
-    db_user = os.environ['MONGO_USER']
-    db_password = os.environ['MONGO_PASSWORD']
-    host = os.environ['MONGO_HOST']
-    port = os.environ['MONGO_PORT']
-    recipe_db_name = os.environ['MONGO_RECIPE_DB']
-
-    connection_string = f'mongodb://{db_user}:{db_password}@{host}:{port}'
-    client = AsyncIOMotorClient(connection_string, io_loop=io_loop)
-    db = client[recipe_db_name]
-    return db
-
-
-db = _connect_to_db()
+from loader import db
 
 
 def _dispatch_user_id(user_id: int) -> AsyncIOMotorCollection:
