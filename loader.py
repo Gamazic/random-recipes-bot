@@ -33,7 +33,6 @@ def _connect_to_db() -> AsyncIOMotorDatabase:
 db = _connect_to_db()
 
 
-# bot = Bot(TG_TOKEN, loop=io_loop)
-bot = Bot(TG_TOKEN)
+bot = Bot(TG_TOKEN, loop=io_loop)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
