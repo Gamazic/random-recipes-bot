@@ -9,6 +9,7 @@ from pymongo.collection import ReturnDocument
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.recipe_shema import Recipe, RecipeWithId
 from app.constants import MAXIMUM_COUNT_OF_RETURNED_RECIPES
+from loader import io_loop
 
 
 def _connect_to_db() -> AsyncIOMotorDatabase:
@@ -24,7 +25,7 @@ def _connect_to_db() -> AsyncIOMotorDatabase:
     recipe_db_name = os.environ['MONGO_RECIPE_DB']
 
     connection_string = f'mongodb://{db_user}:{db_password}@{host}:{port}'
-    client = AsyncIOMotorClient(connection_string)
+    client = AsyncIOMotorClient(connection_string, io_loop=io_loop)
     db = client[recipe_db_name]
     return db
 

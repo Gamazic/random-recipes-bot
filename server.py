@@ -19,11 +19,12 @@ from app.data.config import (TG_TOKEN, WEBAPP_HOST, WEBAPP_PORT,
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.keyboards.layouts import create_recipe_details_layout
 from app.keyboards.markups import recipes_list_inline_keyboard_markup
+from loader import io_loop
 
 
 logger.add("logs/recipe_bot.log", rotation="5 MB")
 
-bot = Bot(TG_TOKEN)
+bot = Bot(TG_TOKEN, loop=io_loop)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
