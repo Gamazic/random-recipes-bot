@@ -1,8 +1,7 @@
 from functools import partial
 import ssl
 
-from aiogram import Bot, Dispatcher, executor
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram import executor
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 from loguru import logger
@@ -13,20 +12,17 @@ from app.callback_data_schema import (DeleteRecipeCallbackData,
                                       UnuseRecipeCallbackData,
                                       UseRecipeCallbackData,
                                       is_valid_schema_for_callback)
-from app.data.config import (TG_TOKEN, WEBAPP_HOST, WEBAPP_PORT,
+from app.data.config import (WEBAPP_HOST, WEBAPP_PORT,
                              WEBHOOK_PATH, WEBHOOK_URL, WEBHOOK_SSL_CERT,
                              WEBHOOK_SSL_PRIV)
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.keyboards.layouts import create_recipe_details_layout
 from app.keyboards.markups import recipes_list_inline_keyboard_markup
-from loader import io_loop
+from loader import dp, bot
 
 
 logger.add("logs/recipe_bot.log", rotation="5 MB")
 
-bot = Bot(TG_TOKEN, loop=io_loop)
-storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
 
 
 class AddNewRecipeStates(StatesGroup):
