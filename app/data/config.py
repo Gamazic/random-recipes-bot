@@ -13,3 +13,10 @@ WEBAPP_PORT = os.environ['WEBAPP_PORT']
 
 WEBHOOK_SSL_CERT = './webhook_cert.pem'
 WEBHOOK_SSL_PRIV = './webhook_pkey.pem'
+
+MONGO_USER = os.environ['MONGO_USER']
+MONGO_PASSWORD = os.environ['MONGO_PASSWORD']
+MONGO_HOST = os.environ['MONGO_HOST']
+MONGO_PORT = os.environ['MONGO_PORT']
+MONGO_RECIPE_DB_NAME = os.environ['MONGO_RECIPE_DB']
+MONGO_URI = f'mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}'
