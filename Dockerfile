@@ -17,11 +17,20 @@ COPY ./poetry.lock ./pyproject.toml ./
 RUN poetry export --output requirements.txt
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirements.txt
 
+# SSL
+ARG WEBHOOK_HOST=""
+RUN openssl genrsa -out webhook_pkey.pem 2048 &&\
+        openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem -subj "/CN=${WEBHOOK_HOST}"
+
 
 FROM python:3.9.7-slim-bullseye
 
+# python dependencies
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache /wheels/*
+
+# ssl cert
+COPY --from=builder /app/webhook_cert.pem /app/webhook_pkey.pem /app/
 
 WORKDIR /app
 COPY . .
