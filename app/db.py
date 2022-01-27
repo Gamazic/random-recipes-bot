@@ -2,14 +2,13 @@ import os
 import random
 
 from bson.objectid import ObjectId
-from motor.motor_asyncio import (AsyncIOMotorClient, AsyncIOMotorCollection,
-                                 AsyncIOMotorDatabase)
+from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo.collection import ReturnDocument
 
 from app.exceptions import UserHasNoRecipesError, UserHasNoSelectedRecipeError
 from app.recipe_shema import Recipe, RecipeWithId
 from app.constants import MAXIMUM_COUNT_OF_RETURNED_RECIPES
-from loader import db
+from loader import db_connection
 
 
 def _dispatch_user_id(user_id: int) -> AsyncIOMotorCollection:
@@ -22,7 +21,7 @@ def _dispatch_user_id(user_id: int) -> AsyncIOMotorCollection:
         AsyncIOMotorCollection: user Mongo collection.
     """
     user_id = str(user_id)
-    return db[user_id]
+    return db_connection[user_id]
 
 
 async def add_recipe_by_name(user_id: int, recipe_name: str) -> None:

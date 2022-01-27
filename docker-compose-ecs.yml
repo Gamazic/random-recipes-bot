@@ -19,7 +19,7 @@ services:
     restart: on-failure
     volumes:
       - ./logs:/app/logs
-    command: ["python", "server.py"]
+    command: ["python", "server.py", "-e", "webhook"]
     env_file: 
       - .env
     ports:

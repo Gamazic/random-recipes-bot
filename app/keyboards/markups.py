@@ -7,6 +7,9 @@ from app.callback_data_schema import (DeleteRecipeCallbackData,
                                       UnuseRecipeCallbackData,
                                       UseRecipeCallbackData)
 from app.recipe_shema import RecipeWithId
+from app.data.messages_text import (MARK_AS_UNUSED_RECIPE_BUTTON_TEXT,
+                                    MARK_AS_USED_RECIPE_BUTTON_TEXT,
+                                    DELETE_RECIPE_BUTTON_TEXT)
 
 
 def create_inline_keyboard_button(
@@ -56,16 +59,16 @@ def recipe_details_markup(recipe: RecipeWithId) -> InlineKeyboardMarkup:
     buttons = []
     id_data = {'id': recipe.id}
     if recipe.is_used:
-        unuse_recipe_button = create_inline_keyboard_button('Пометить как неиспользованный',
+        unuse_recipe_button = create_inline_keyboard_button(MARK_AS_UNUSED_RECIPE_BUTTON_TEXT,
                                                             UnuseRecipeCallbackData,
                                                             id_data)
         buttons.append([unuse_recipe_button])
     else:
-        use_recipe_button = create_inline_keyboard_button('Использовать рецепт',
+        use_recipe_button = create_inline_keyboard_button(MARK_AS_USED_RECIPE_BUTTON_TEXT,
                                                           UseRecipeCallbackData,
                                                           id_data)
         buttons.append([use_recipe_button])
-    delete_button = create_inline_keyboard_button('Удалить', DeleteRecipeCallbackData, id_data)
+    delete_button = create_inline_keyboard_button(DELETE_RECIPE_BUTTON_TEXT, DeleteRecipeCallbackData, id_data)
     buttons.append([delete_button])
     markup = create_inline_markup_from_buttons(buttons)
     return markup

@@ -2,6 +2,9 @@ from aiogram.types import ParseMode
 
 from app.keyboards.markups import recipe_details_markup
 from app.recipe_shema import RecipeWithId
+from app.data.messages_text import (IS_USED_RECIPE_DETAILS_MESSAGE,
+                                    IS_UNUSED_RECIPE_DETAILS_MESSAGE,
+                                    SINGLE_SHOWN_RECIPE_MESSAGE)
 
 
 def create_recipe_details_layout(recipe: RecipeWithId) -> dict:
@@ -15,8 +18,8 @@ def create_recipe_details_layout(recipe: RecipeWithId) -> dict:
               `bot.send_message`, `message.answer`, `bot.edit_message_text` and etc.
     """
     markup = recipe_details_markup(recipe)
-    is_used_status_line = 'Использован \U0001F373' if recipe.is_used else '*Неиспользован*'
-    details_text = 'Рецепт:\n' \
+    is_used_status_line = IS_USED_RECIPE_DETAILS_MESSAGE if recipe.is_used else IS_UNUSED_RECIPE_DETAILS_MESSAGE
+    details_text = f'{SINGLE_SHOWN_RECIPE_MESSAGE}' \
                    f'*{recipe.name}*\n' \
-                   f'Статус: *{is_used_status_line}*'
+                   f'{is_used_status_line}'
     return dict(text=details_text, reply_markup=markup, parse_mode=ParseMode.MARKDOWN)
