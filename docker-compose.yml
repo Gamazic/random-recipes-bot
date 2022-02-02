@@ -18,8 +18,6 @@ services:
       - .env
     volumes:
       - ./mongodata:/bitnami/mongodb
-    ports: 
-      - 27017:27017
 
   bot:
     container_name: recipes-bot
