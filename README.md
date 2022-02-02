@@ -1,5 +1,7 @@
 # random-recipes-bot
 
+![Build](https://github.com/Gamazic/random-recipes-bot/actions/workflows/aws.yml/badge.svg?branch=master)
+
 ## Bot link:
 https://t.me/RandomRecipesBot
 
