@@ -47,7 +47,7 @@ You can learn more about `poetry` here:
 * Russian [^1]
 * English [^2]
 
-To install without dev dependenices (for run project only) use next command:
+To install without dev dependenices (for run project only without tests and linters) use following command:
 ```bash
 poetry install -n --no-dev
 ```
@@ -83,12 +83,11 @@ docker-compose up -d
 
 # References
 
-* [^1]: Обзор `poetry` от Диджитализируй!: https://youtu.be/KOC0Gbo_0HY
-* [^2]: `poetry` official documentation: https://python-poetry.org/docs/
-* [^3]: Установка `Docker` для `Ubuntu 18.04`: https://www.digitalocean.com/community/tutorials/docker-ubuntu-18-04-1-ru
-* [^4]: Установка `docker-compose` для `Ubuntu 18.04`: https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-18-04-ru
-* [^5]: Install `Docker`: https://docs.docker.com/engine/install/
-* [^6]: Install `docker-compose`: https://docs.docker.com/compose/install/
-
+[^1]: Обзор `poetry` от Диджитализируй!: https://youtu.be/KOC0Gbo_0HY
+[^2]: `poetry` official documentation: https://python-poetry.org/docs/
+[^3]: Установка `Docker` для `Ubuntu 18.04`: https://www.digitalocean.com/community/tutorials/docker-ubuntu-18-04-1-ru
+[^4]: Установка `docker-compose` для `Ubuntu 18.04`: https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-18-04-ru
+[^5]: Install `Docker`: https://docs.docker.com/engine/install/
+[^6]: Install `docker-compose`: https://docs.docker.com/compose/install/
 
 `More guides in README comming soon.`
