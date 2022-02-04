@@ -81,7 +81,7 @@ docker-compose up -d
 * Гайд как запустить контейнер на `AWS EC2` через `cli` на сервере: https://github.com/gavrilka/TelegramBot
 * Deploy `docker-compose` on `AWS ECS EC2`: https://dev.to/raphaelmansuy/10-minutes-to-deploy-a-docker-compose-stack-on-aws-illustrated-with-hasura-and-postgres-3f6e
 
-# References
+`More guides in README comming soon.`
 
 [^1]: Обзор `poetry` от Диджитализируй!: https://youtu.be/KOC0Gbo_0HY
 [^2]: `poetry` official documentation: https://python-poetry.org/docs/
@@ -90,4 +90,3 @@ docker-compose up -d
 [^5]: Install `Docker`: https://docs.docker.com/engine/install/
 [^6]: Install `docker-compose`: https://docs.docker.com/compose/install/
 
-`More guides in README comming soon.`
