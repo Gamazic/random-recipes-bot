@@ -55,12 +55,12 @@ poetry install -n --no-dev
 ### Run app with polling
 
 ```python
-python server.py -e polling
+poetry run python server.py -e polling
 ```
 
 ### Run tests
 ```python
-pytest -v
+poetry run pytest -v
 ```
 Testing can be run only with dev dependecies
 
